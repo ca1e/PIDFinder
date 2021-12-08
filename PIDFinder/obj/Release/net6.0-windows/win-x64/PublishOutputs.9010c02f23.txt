@@ -1,0 +1,2 @@
+D:\repositories\bdsp\PIDFinder\publish\PIDFinder.pdb
+D:\repositories\bdsp\PIDFinder\publish\PIDFinder.exe
