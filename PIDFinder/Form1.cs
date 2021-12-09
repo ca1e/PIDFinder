@@ -64,6 +64,7 @@ namespace PIDFinder
             button1.Enabled = !running;
             pkmConsis1.Enabled = !running;
             button2.Visible = running;
+            button3.Enabled = !running;
         }
 
 
@@ -75,6 +76,14 @@ namespace PIDFinder
             label3.Text = $"Ability: {pkm.Ability}";
             label4.Text = $"H:{pkm.Height}, W:{pkm.Weight}";
             label6.Text = pkm.GetShinyString();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            var seed = uint.Parse(textBox3.Text, System.Globalization.NumberStyles.HexNumber);
+
+            var pkm = Roaming8bRNG.GenPkm(seed, trainerid1.GetSIDTID());
+            ShowPkm(pkm);
         }
     }
 }
