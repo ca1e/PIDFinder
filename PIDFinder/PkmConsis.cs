@@ -42,15 +42,15 @@ namespace PIDFinder
             // check ivs
             if (pkm.HP < rules.minHP || pkm.HP > rules.maxHP)
                 return false;
-            if (pkm.Atk < rules.minAtk || pkm.HP > rules.maxAtk)
+            if (pkm.Atk < rules.minAtk || pkm.Atk > rules.maxAtk)
                 return false;
-            if (pkm.Def < rules.minDef || pkm.HP > rules.maxDef)
+            if (pkm.Def < rules.minDef || pkm.Def > rules.maxDef)
                 return false;
-            if (pkm.SpA < rules.minSpA || pkm.HP > rules.maxSpA)
+            if (pkm.SpA < rules.minSpA || pkm.SpA > rules.maxSpA)
                 return false;
-            if (pkm.SpD < rules.minSpD || pkm.HP > rules.maxSpD)
+            if (pkm.SpD < rules.minSpD || pkm.SpD > rules.maxSpD)
                 return false;
-            if (pkm.Spe < rules.minSpe || pkm.HP > rules.maxSpe)
+            if (pkm.Spe < rules.minSpe || pkm.Spe > rules.maxSpe)
                 return false;
             // check shiny
             var matchShiny = selectedShiny switch
