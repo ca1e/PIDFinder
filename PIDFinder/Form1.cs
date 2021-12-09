@@ -25,14 +25,14 @@ namespace PIDFinder
                     {
                         if (tokenSource.IsCancellationRequested)
                             return;
-                        var seed = GetSeed();
+                        var seed = RandUtil.Rand32();
                         this.Invoke(() =>
                         {
                             textBox3.Text = $"{seed:X}";
                         });
                         
 
-                        var pkm = Roaming8bRNG.GenPkm((uint)seed, trainerid1.GetSIDTID());
+                        var pkm = Roaming8bRNG.GenPkm(seed, trainerid1.GetSIDTID());
                         if (pkmConsis1.Check(pkm))
                         {
                             this.Invoke(() =>
@@ -66,13 +66,6 @@ namespace PIDFinder
             button2.Visible = running;
         }
 
-        private static ulong GetSeed()
-        {
-            var bytes = new byte[8];
-            var rand = System.Security.Cryptography.RandomNumberGenerator.Create();
-            rand.GetBytes(bytes);
-            return BitConverter.ToUInt64(bytes);
-        }
 
         private void ShowPkm(PKM pkm)
         {
