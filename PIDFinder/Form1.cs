@@ -16,21 +16,18 @@ namespace PIDFinder
         private void button1_Click(object sender, EventArgs e)
         {
             IsRunning(true);
+            textBox3.Text = "searching...";
 
             tokenSource = new();
             Task.Factory.StartNew(
                 () =>
                 {
+                    var seed = RandUtil.Rand32();
+                    var xoro = new Xoroshiro128Plus8b(seed);
                     while (true)
                     {
                         if (tokenSource.IsCancellationRequested)
                             return;
-                        var seed = RandUtil.Rand32();
-                        this.Invoke(() =>
-                        {
-                            textBox3.Text = $"{seed:X}";
-                        });
-                        
 
                         var pkm = Roaming8bRNG.GenPkm(seed, trainerid1.GetSIDTID());
                         if (pkmConsis1.Check(pkm))
@@ -43,11 +40,13 @@ namespace PIDFinder
                             });
                             break;
                         }
+                        seed = (uint)xoro.Next();
                     }
 
                     this.Invoke(() =>
                     {
                         IsRunning(false);
+                        textBox3.Text = $"{seed:X}";
                     });
                 },
                 tokenSource.Token);
