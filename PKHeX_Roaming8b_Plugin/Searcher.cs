@@ -24,7 +24,8 @@ namespace PKHeX_Roaming8b_Plugin
 
         private void show(PkmEntry pe)
         {
-            var encs = EncounterUtil.SearchEncounters(SAV.SAV.BlankPKM, (GameVersion)SAV.SAV.Game);
+            int species = radioButton2.Checked ? 488 : 481;
+            var encs = EncounterUtil.SearchEncounters(SAV.SAV.BlankPKM, (GameVersion)SAV.SAV.Game, species);
             var criteria = EncounterUtil.GetCriteria(Editor.Data);
             var enc = encs.First();
             if (enc != null)

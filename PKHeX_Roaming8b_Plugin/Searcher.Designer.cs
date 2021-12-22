@@ -33,6 +33,8 @@
             this.conditionPKM1 = new PKHeX_Roaming8b_Plugin.ConditionPKM();
             this.checkBTN = new System.Windows.Forms.Button();
             this.cancelBTN = new System.Windows.Forms.Button();
+            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.SuspendLayout();
             // 
             // searchBTN
@@ -47,7 +49,7 @@
             // 
             // seedBox
             // 
-            this.seedBox.Location = new System.Drawing.Point(233, 25);
+            this.seedBox.Location = new System.Drawing.Point(240, 25);
             this.seedBox.MaxLength = 64;
             this.seedBox.Name = "seedBox";
             this.seedBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -65,7 +67,7 @@
             // 
             // checkBTN
             // 
-            this.checkBTN.Location = new System.Drawing.Point(233, 52);
+            this.checkBTN.Location = new System.Drawing.Point(240, 52);
             this.checkBTN.Name = "checkBTN";
             this.checkBTN.Size = new System.Drawing.Size(109, 23);
             this.checkBTN.TabIndex = 3;
@@ -84,11 +86,36 @@
             this.cancelBTN.Visible = false;
             this.cancelBTN.Click += new System.EventHandler(this.cancelBTN_Click);
             // 
+            // radioButton1
+            // 
+            this.radioButton1.AutoSize = true;
+            this.radioButton1.Location = new System.Drawing.Point(240, 101);
+            this.radioButton1.Name = "radioButton1";
+            this.radioButton1.Size = new System.Drawing.Size(41, 16);
+            this.radioButton1.TabIndex = 5;
+            this.radioButton1.TabStop = true;
+            this.radioButton1.Text = "481";
+            this.radioButton1.UseVisualStyleBackColor = true;
+            // 
+            // radioButton2
+            // 
+            this.radioButton2.AutoSize = true;
+            this.radioButton2.Checked = true;
+            this.radioButton2.Location = new System.Drawing.Point(299, 101);
+            this.radioButton2.Name = "radioButton2";
+            this.radioButton2.Size = new System.Drawing.Size(41, 16);
+            this.radioButton2.TabIndex = 6;
+            this.radioButton2.TabStop = true;
+            this.radioButton2.Text = "488";
+            this.radioButton2.UseVisualStyleBackColor = true;
+            // 
             // Searcher
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(416, 235);
+            this.Controls.Add(this.radioButton2);
+            this.Controls.Add(this.radioButton1);
             this.Controls.Add(this.cancelBTN);
             this.Controls.Add(this.checkBTN);
             this.Controls.Add(this.conditionPKM1);
@@ -112,5 +139,7 @@
         private ConditionPKM conditionPKM1;
         private System.Windows.Forms.Button checkBTN;
         private System.Windows.Forms.Button cancelBTN;
+        private System.Windows.Forms.RadioButton radioButton1;
+        private System.Windows.Forms.RadioButton radioButton2;
     }
 }
