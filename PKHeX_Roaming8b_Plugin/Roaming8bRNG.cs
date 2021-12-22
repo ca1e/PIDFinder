@@ -1,10 +1,12 @@
-﻿namespace PIDFinder
+﻿using PKHeX.Core;
+
+namespace PKHeX_Roaming8b_Plugin
 {
-    public static class Roaming8bRNG
+    internal static class Roaming8bRNG
     {
         private const int FlawlessIVs = 3;
         private const uint UNSET = 255;
-        public static PKM GenPkm(uint seed, ITrainerID trainer)
+        public static PkmEntry GenPkm(uint seed, ITrainerID trainer)
         {
             var xoro = new Xoroshiro128Plus8b(seed);
             var fakeTID = xoro.NextUInt();
@@ -14,7 +16,7 @@
             pid = GetRevisedPID(fakeTID, pid, trainer);
             var rare = GetShinyXor(opid, fakeTID);
 
-            var ivs = new uint[6] { UNSET , UNSET, UNSET, UNSET, UNSET, UNSET };
+            var ivs = new uint[6] { UNSET, UNSET, UNSET, UNSET, UNSET, UNSET };
 
             var determined = 0;
             while (determined < FlawlessIVs)
@@ -24,8 +26,9 @@
                 ivs[idx] = 31;
                 determined++;
             }
-            for(var i = 0;i< ivs.Length; i++) {
-                if(ivs[i] == UNSET)
+            for (var i = 0; i < ivs.Length; i++)
+            {
+                if (ivs[i] == UNSET)
                 {
                     ivs[i] = xoro.NextUInt(32);
                 }
@@ -34,9 +37,12 @@
             uint height = xoro.NextUInt(0x81) + xoro.NextUInt(0x80);
             uint weight = xoro.NextUInt(0x81) + xoro.NextUInt(0x80);
 
-            return new PKM { PID = pid, EC = seed,
+            return new PkmEntry
+            {
+                PID = pid,
+                EC = seed,
                 ShinyStatus = (int)rare,
-                ivs = ivs, 
+                ivs = ivs,
                 Ability = ability,
                 Height = height,
                 Weight = weight

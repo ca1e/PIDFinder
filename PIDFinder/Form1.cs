@@ -66,13 +66,12 @@ namespace PIDFinder
             button3.Enabled = !running;
         }
 
-
         private void ShowPkm(PKM pkm)
         {
             textBox1.Text = $"{pkm.PID:X8}";
             textBox2.Text = $"{pkm.EC:X8}";
             label2.Text = $"{pkm.HP}, {pkm.Atk}, {pkm.Def}, {pkm.SpA}, {pkm.SpD}, {pkm.Spe}";
-            label3.Text = $"Ability: {pkm.Ability}";
+            label3.Text = $"Ability: ({pkm.Ability + 1})";
             label4.Text = $"H:{pkm.Height}, W:{pkm.Weight}";
             label6.Text = pkm.GetShinyString();
         }

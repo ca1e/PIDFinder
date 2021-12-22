@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace PIDFinder
+namespace PKHeX_Roaming8b_Plugin
 {
-    public partial class PkmConsis : UserControl
+    public partial class ConditionPKM : UserControl
     {
         private CheckRule rules = new();
         private ShinyType selectedShiny = ShinyType.None;
-        public PkmConsis()
+        public ConditionPKM()
         {
             InitializeComponent();
 
@@ -37,7 +37,7 @@ namespace PIDFinder
             this.comboBox1.SelectedIndex = 0;
         }
 
-        public bool Check(PKM pkm)
+        public bool Check(PkmEntry pkm)
         {
             // check ivs
             if (pkm.HP < rules.minHP || pkm.HP > rules.maxHP)
@@ -56,7 +56,7 @@ namespace PIDFinder
             var matchShiny = selectedShiny switch
             {
                 ShinyType.Square => pkm.ShinyStatus == 0,
-                ShinyType.Star => pkm.ShinyStatus <16 && pkm.ShinyStatus!=0,
+                ShinyType.Star => pkm.ShinyStatus < 16 && pkm.ShinyStatus != 0,
                 ShinyType.Shiny => pkm.ShinyStatus < 16,
                 // ShinyType.None => pkm.ShinyStatus >= 16,
                 _ => true,

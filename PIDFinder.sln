@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.31911.260
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PIDFinder", "PIDFinder\PIDFinder.csproj", "{6A031FD7-7489-4AE2-AD46-58A5B0441353}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PIDFinder", "PIDFinder\PIDFinder.csproj", "{6A031FD7-7489-4AE2-AD46-58A5B0441353}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PKHeX_Roaming8b_Plugin", "PKHeX_Roaming8b_Plugin\PKHeX_Roaming8b_Plugin.csproj", "{6C491FA4-68C5-4EBF-98AF-C3E8917365CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{6A031FD7-7489-4AE2-AD46-58A5B0441353}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A031FD7-7489-4AE2-AD46-58A5B0441353}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A031FD7-7489-4AE2-AD46-58A5B0441353}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C491FA4-68C5-4EBF-98AF-C3E8917365CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C491FA4-68C5-4EBF-98AF-C3E8917365CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C491FA4-68C5-4EBF-98AF-C3E8917365CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C491FA4-68C5-4EBF-98AF-C3E8917365CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

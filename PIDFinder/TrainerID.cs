@@ -14,9 +14,9 @@ namespace PIDFinder
             _tid = 999_999;
         }
 
-        public TSVID GetSIDTID()
+        public ITrainerID GetSIDTID()
         {
-            return new TSVID { SID = _sid, TID = _tid };
+            return new TSVID { _SID = _sid, _TID = _tid };
         }
 
         private void SID_TXT_TextChanged(object sender, System.EventArgs e)
@@ -42,6 +42,43 @@ namespace PIDFinder
                 TID_TXT.Text = "999999";
             }
             _tid = tid;
+        }
+    }
+
+    public record TSVID : ITrainerID
+    {
+        int _fid
+        {
+            get
+            {
+                return (int)(_SID * 1000000 + _TID);
+            }
+        }
+        public uint _SID { get; init; }
+        public uint _TID { get; init; }
+
+        public int TID
+        {
+            set
+            {
+
+            }
+            get
+            {
+                return _fid % 65536;
+            }
+        }
+
+        public int SID
+        {
+            set
+            {
+
+            }
+            get
+            {
+                return _fid / 65536;
+            }
         }
     }
 }
