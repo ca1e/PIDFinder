@@ -14,6 +14,13 @@
             _ => "No Shiny",
         };
 
+        public string Gen3ShinyString() => ShinyStatus switch
+        {
+            0 => "Square!",
+            < 8 => "Star!",
+            _ => "No Shiny",
+        };
+
         public uint[] ivs { get; init; }
 
         public uint HP => ivs[0];
@@ -24,6 +31,7 @@
         public uint Spe => ivs[5];
 
         public uint Ability { get; init; }
+        public uint Nature { get; set; }
         public uint Height { get; init; }
         public uint Weight { get; init; }
     }

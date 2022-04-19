@@ -8,9 +8,42 @@ namespace PIDFinder
     public partial class Form1 : Form
     {
         private CancellationTokenSource tokenSource = new();
+        private MethodType RNGMethod = MethodType.Method1;
         public Form1()
         {
             InitializeComponent();
+
+            BindingData();
+        }
+
+        private void BindingData()
+        {
+            this.comboBox1.DataSource = Enum.GetNames(typeof(MethodType));
+            this.comboBox1.SelectedIndexChanged += (_, __) =>
+            {
+                RNGMethod = (MethodType)Enum.Parse(typeof(MethodType), this.comboBox1.SelectedItem.ToString(), false);
+            };
+            this.comboBox1.SelectedIndex = 0;
+        }
+
+        private PKM GenPkm(uint seed)
+        {
+            return RNGMethod switch
+            {
+                MethodType.Method1 => Method1RNG.GenPkm(seed, trainerid1.GetSIDTID()),
+                MethodType.Roaming8b => Roaming8bRNG.GenPkm(seed, trainerid1.GetSIDTID()),
+                _ => throw new NotSupportedException(),
+            };
+        }
+
+        private uint NextSeed(uint seed)
+        {
+            return RNGMethod switch
+            {
+                MethodType.Method1 => Method1RNG.Next(seed),
+                MethodType.Roaming8b => Roaming8bRNG.Next(seed),
+                _ => throw new NotSupportedException(),
+            };
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -23,13 +56,13 @@ namespace PIDFinder
                 () =>
                 {
                     var seed = RandUtil.Rand32();
-                    var xoro = new Xoroshiro128Plus8b(seed);
+
                     while (true)
                     {
                         if (tokenSource.IsCancellationRequested)
                             return;
 
-                        var pkm = Roaming8bRNG.GenPkm(seed, trainerid1.GetSIDTID());
+                        var pkm = GenPkm(seed);
                         if (pkmConsis1.Check(pkm))
                         {
                             this.Invoke(() =>
@@ -40,7 +73,8 @@ namespace PIDFinder
                             });
                             break;
                         }
-                        seed = (uint)xoro.Next();
+                        seed = NextSeed(seed);
+                        //System.Diagnostics.Debug.Print($"{seed:X}");
                     }
 
                     this.Invoke(() =>
@@ -71,16 +105,16 @@ namespace PIDFinder
             textBox1.Text = $"{pkm.PID:X8}";
             textBox2.Text = $"{pkm.EC:X8}";
             label2.Text = $"{pkm.HP}, {pkm.Atk}, {pkm.Def}, {pkm.SpA}, {pkm.SpD}, {pkm.Spe}";
-            label3.Text = $"Ability: ({pkm.Ability + 1})";
+            label3.Text = $"Ability: ({pkm.Ability + 1}), {pkm.Nature}";
             label4.Text = $"H:{pkm.Height}, W:{pkm.Weight}";
-            label6.Text = pkm.GetShinyString();
+            label6.Text = pkm.Gen3ShinyString();
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
             var seed = uint.Parse(textBox3.Text, System.Globalization.NumberStyles.HexNumber);
 
-            var pkm = Roaming8bRNG.GenPkm(seed, trainerid1.GetSIDTID());
+            var pkm = GenPkm(seed);
             ShowPkm(pkm);
         }
     }

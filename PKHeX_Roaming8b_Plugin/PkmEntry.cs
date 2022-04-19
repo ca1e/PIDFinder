@@ -6,6 +6,7 @@
         public uint PID { get; set; }
         public int ShinyStatus { get; set; }
         public uint Ability { get; set; }
+        public uint Nature { get; set; }
         public uint Height { get; set; }
         public uint Weight { get; set; }
         public uint[] ivs { get; set; }
