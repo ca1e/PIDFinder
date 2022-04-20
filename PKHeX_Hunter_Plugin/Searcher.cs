@@ -1,5 +1,6 @@
 ﻿using PKHeX.Core;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,14 +40,29 @@ namespace PKHeX_Hunter_Plugin
                 RNGMethod = (MethodType)Enum.Parse(typeof(MethodType), this.methodTypeBox.SelectedItem.ToString(), false);
             };
             this.methodTypeBox.SelectedIndex = 0;
+
+            CB_Species.InitializeBinding();
+            CB_GameOrigin.InitializeBinding();
+
+            var Any = new ComboItem(MessageStrings.MsgAny, -1);
+            var DS_Species = new List<ComboItem>(GameInfo.SpeciesDataSource);
+            DS_Species.RemoveAt(0);
+            CB_Species.DataSource = DS_Species;
+
+            var DS_Version = new List<ComboItem>(GameInfo.VersionDataSource);
+            DS_Version.Insert(0, Any); CB_GameOrigin.DataSource = DS_Version;
+
+            CB_Species.SelectedIndex = 0;
+            CB_GameOrigin.SelectedIndex = 0;
         }
 
         private void show(PkmEntry pe)
         {
-            int species = GetSpecies();
-            var vers = GetSearchVer();
+            int species = WinFormsUtil.GetIndex(CB_Species);
+            var Version = WinFormsUtil.GetIndex(CB_GameOrigin);
 
-            var encs = EncounterUtil.SearchEncounters(species, 0, SAV.SAV.BlankPKM, vers);
+            var encs = EncounterUtil.SearchEncounters(species, 0, SAV.SAV.BlankPKM, (GameVersion)Version);
+
             // skip egg
             var enc = encs.Where(z => z.EggEncounter == false).First();
 
@@ -101,16 +117,6 @@ namespace PKHeX_Hunter_Plugin
             {
                 MethodType.Method1 => 8,
                 MethodType.Roaming8b => 16,
-                _ => throw new NotSupportedException(),
-            };
-        }
-
-        private int GetSpecies()
-        {
-            return RNGMethod switch
-            {
-                MethodType.Method1 => 285,
-                MethodType.Roaming8b => radioButton2.Checked ? 488 : 481,
                 _ => throw new NotSupportedException(),
             };
         }

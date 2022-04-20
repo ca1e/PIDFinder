@@ -69,3 +69,8 @@ namespace PKHeX_Hunter_Plugin
         }
     }
 }
+
+namespace System.Runtime.CompilerServices
+{
+    internal class IsExternalInit { }
+}

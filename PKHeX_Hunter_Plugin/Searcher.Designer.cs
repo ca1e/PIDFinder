@@ -33,9 +33,9 @@
             this.conditionPKM1 = new PKHeX_Hunter_Plugin.ConditionPKM();
             this.checkBTN = new System.Windows.Forms.Button();
             this.cancelBTN = new System.Windows.Forms.Button();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.methodTypeBox = new System.Windows.Forms.ComboBox();
+            this.CB_Species = new System.Windows.Forms.ComboBox();
+            this.CB_GameOrigin = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // searchBTN
@@ -87,50 +87,48 @@
             this.cancelBTN.Visible = false;
             this.cancelBTN.Click += new System.EventHandler(this.cancelBTN_Click);
             // 
-            // radioButton1
-            // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point(223, 146);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(41, 16);
-            this.radioButton1.TabIndex = 5;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "481";
-            this.radioButton1.UseVisualStyleBackColor = true;
-            // 
-            // radioButton2
-            // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Checked = true;
-            this.radioButton2.Location = new System.Drawing.Point(282, 146);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(41, 16);
-            this.radioButton2.TabIndex = 6;
-            this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "488";
-            this.radioButton2.UseVisualStyleBackColor = true;
-            // 
             // methodTypeBox
             // 
             this.methodTypeBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.methodTypeBox.FormattingEnabled = true;
-            this.methodTypeBox.Location = new System.Drawing.Point(210, 105);
+            this.methodTypeBox.Location = new System.Drawing.Point(210, 100);
             this.methodTypeBox.Name = "methodTypeBox";
             this.methodTypeBox.Size = new System.Drawing.Size(127, 20);
-            this.methodTypeBox.TabIndex = 7;
+            this.methodTypeBox.TabIndex = 5;
+            // 
+            // CB_Species
+            // 
+            this.CB_Species.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+            this.CB_Species.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+            this.CB_Species.FormattingEnabled = true;
+            this.CB_Species.Location = new System.Drawing.Point(210, 120);
+            this.CB_Species.Margin = new System.Windows.Forms.Padding(0);
+            this.CB_Species.Name = "CB_Species";
+            this.CB_Species.Size = new System.Drawing.Size(122, 21);
+            this.CB_Species.TabIndex = 6;
+            // 
+            // CB_GameOrigin
+            // 
+            this.CB_GameOrigin.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.CB_GameOrigin.FormattingEnabled = true;
+            this.CB_GameOrigin.Location = new System.Drawing.Point(210, 143);
+            this.CB_GameOrigin.Margin = new System.Windows.Forms.Padding(0);
+            this.CB_GameOrigin.Name = "CB_GameOrigin";
+            this.CB_GameOrigin.Size = new System.Drawing.Size(122, 21);
+            this.CB_GameOrigin.TabIndex = 7;
             // 
             // Searcher
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(416, 275);
-            this.Controls.Add(this.radioButton2);
-            this.Controls.Add(this.radioButton1);
             this.Controls.Add(this.cancelBTN);
             this.Controls.Add(this.checkBTN);
             this.Controls.Add(this.conditionPKM1);
             this.Controls.Add(this.seedBox);
             this.Controls.Add(this.searchBTN);
+            this.Controls.Add(this.CB_Species);
+            this.Controls.Add(this.CB_GameOrigin);
             this.Controls.Add(this.methodTypeBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.MaximizeBox = false;
@@ -150,8 +148,8 @@
         private ConditionPKM conditionPKM1;
         private System.Windows.Forms.Button checkBTN;
         private System.Windows.Forms.Button cancelBTN;
-        private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.RadioButton radioButton2;
+        private System.Windows.Forms.ComboBox CB_Species;
         private System.Windows.Forms.ComboBox methodTypeBox;
+        private System.Windows.Forms.ComboBox CB_GameOrigin;
     }
 }
