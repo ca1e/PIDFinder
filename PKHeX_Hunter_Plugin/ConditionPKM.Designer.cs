@@ -1,4 +1,4 @@
-﻿namespace PKHeX_Roaming8b_Plugin
+﻿namespace PKHeX_Hunter_Plugin
 {
     partial class ConditionPKM
     {

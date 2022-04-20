@@ -1,7 +1,7 @@
 ﻿using PKHeX.Core;
 using System.Collections.Generic;
 
-namespace PKHeX_Roaming8b_Plugin
+namespace PKHeX_Hunter_Plugin
 {
     internal static class EncounterUtil
     {
@@ -11,7 +11,7 @@ namespace PKHeX_Roaming8b_Plugin
         /// </summary>
         /// <param name="species"></param>
         /// <returns></returns>
-        public static IEnumerable<IEncounterInfo> SearchEncounters(PKM pkm, GameVersion version, int species = 488)
+        public static IEnumerable<IEncounterInfo> SearchEncounters(PKM pkm, GameVersion version, int species)
         {
             pkm.Species = species;
             pkm.Form = 0;

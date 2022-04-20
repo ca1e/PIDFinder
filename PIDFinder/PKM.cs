@@ -31,7 +31,7 @@
         public uint Spe => ivs[5];
 
         public uint Ability { get; init; }
-        public uint Nature { get; set; }
+        public uint Nature { get; init; }
         public uint Height { get; init; }
         public uint Weight { get; init; }
     }

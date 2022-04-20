@@ -1,4 +1,4 @@
-﻿namespace PKHeX_Roaming8b_Plugin
+﻿namespace PKHeX_Hunter_Plugin
 {
     partial class Searcher
     {
@@ -30,16 +30,17 @@
         {
             this.searchBTN = new System.Windows.Forms.Button();
             this.seedBox = new System.Windows.Forms.TextBox();
-            this.conditionPKM1 = new PKHeX_Roaming8b_Plugin.ConditionPKM();
+            this.conditionPKM1 = new PKHeX_Hunter_Plugin.ConditionPKM();
             this.checkBTN = new System.Windows.Forms.Button();
             this.cancelBTN = new System.Windows.Forms.Button();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.methodTypeBox = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // searchBTN
             // 
-            this.searchBTN.Location = new System.Drawing.Point(210, 158);
+            this.searchBTN.Location = new System.Drawing.Point(210, 200);
             this.searchBTN.Name = "searchBTN";
             this.searchBTN.Size = new System.Drawing.Size(109, 46);
             this.searchBTN.TabIndex = 0;
@@ -49,11 +50,11 @@
             // 
             // seedBox
             // 
-            this.seedBox.Location = new System.Drawing.Point(240, 25);
+            this.seedBox.Location = new System.Drawing.Point(210, 34);
             this.seedBox.MaxLength = 64;
             this.seedBox.Name = "seedBox";
             this.seedBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.seedBox.Size = new System.Drawing.Size(109, 21);
+            this.seedBox.Size = new System.Drawing.Size(175, 21);
             this.seedBox.TabIndex = 1;
             this.seedBox.Text = "00000000";
             // 
@@ -67,9 +68,9 @@
             // 
             // checkBTN
             // 
-            this.checkBTN.Location = new System.Drawing.Point(240, 52);
+            this.checkBTN.Location = new System.Drawing.Point(286, 61);
             this.checkBTN.Name = "checkBTN";
-            this.checkBTN.Size = new System.Drawing.Size(109, 23);
+            this.checkBTN.Size = new System.Drawing.Size(99, 23);
             this.checkBTN.TabIndex = 3;
             this.checkBTN.Text = "Lookup";
             this.checkBTN.UseVisualStyleBackColor = true;
@@ -77,7 +78,7 @@
             // 
             // cancelBTN
             // 
-            this.cancelBTN.Location = new System.Drawing.Point(333, 158);
+            this.cancelBTN.Location = new System.Drawing.Point(333, 200);
             this.cancelBTN.Name = "cancelBTN";
             this.cancelBTN.Size = new System.Drawing.Size(52, 46);
             this.cancelBTN.TabIndex = 4;
@@ -89,7 +90,7 @@
             // radioButton1
             // 
             this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point(240, 101);
+            this.radioButton1.Location = new System.Drawing.Point(223, 146);
             this.radioButton1.Name = "radioButton1";
             this.radioButton1.Size = new System.Drawing.Size(41, 16);
             this.radioButton1.TabIndex = 5;
@@ -101,7 +102,7 @@
             // 
             this.radioButton2.AutoSize = true;
             this.radioButton2.Checked = true;
-            this.radioButton2.Location = new System.Drawing.Point(299, 101);
+            this.radioButton2.Location = new System.Drawing.Point(282, 146);
             this.radioButton2.Name = "radioButton2";
             this.radioButton2.Size = new System.Drawing.Size(41, 16);
             this.radioButton2.TabIndex = 6;
@@ -109,11 +110,20 @@
             this.radioButton2.Text = "488";
             this.radioButton2.UseVisualStyleBackColor = true;
             // 
+            // methodTypeBox
+            // 
+            this.methodTypeBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.methodTypeBox.FormattingEnabled = true;
+            this.methodTypeBox.Location = new System.Drawing.Point(210, 105);
+            this.methodTypeBox.Name = "methodTypeBox";
+            this.methodTypeBox.Size = new System.Drawing.Size(127, 20);
+            this.methodTypeBox.TabIndex = 7;
+            // 
             // Searcher
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(416, 235);
+            this.ClientSize = new System.Drawing.Size(416, 275);
             this.Controls.Add(this.radioButton2);
             this.Controls.Add(this.radioButton1);
             this.Controls.Add(this.cancelBTN);
@@ -121,6 +131,7 @@
             this.Controls.Add(this.conditionPKM1);
             this.Controls.Add(this.seedBox);
             this.Controls.Add(this.searchBTN);
+            this.Controls.Add(this.methodTypeBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -141,5 +152,6 @@
         private System.Windows.Forms.Button cancelBTN;
         private System.Windows.Forms.RadioButton radioButton1;
         private System.Windows.Forms.RadioButton radioButton2;
+        private System.Windows.Forms.ComboBox methodTypeBox;
     }
 }

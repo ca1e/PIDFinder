@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace PKHeX_Roaming8b_Plugin
+namespace PKHeX_Hunter_Plugin
 {
     public partial class Searcher : Form
     {
@@ -24,7 +24,9 @@ namespace PKHeX_Roaming8b_Plugin
 
         private void show(PkmEntry pe)
         {
-            int species = radioButton2.Checked ? 488 : 481;
+            //int species = radioButton2.Checked ? 488 : 481;
+            int species = 285;
+
             var encs = EncounterUtil.SearchEncounters(SAV.SAV.BlankPKM, (GameVersion)SAV.SAV.Game, species);
             var criteria = EncounterUtil.GetCriteria(Editor.Data);
             var enc = encs.First();
@@ -42,8 +44,8 @@ namespace PKHeX_Roaming8b_Plugin
                 pk.IV_SPD = (int)pe.SpD;
                 pk.IV_SPE = (int)pe.Spe;
                 var scale = (IScaledSize)pk;
-                scale.HeightScalar = (int)pe.Height;
-                scale.WeightScalar = (int)pe.Weight;
+                scale.HeightScalar = (byte)pe.Height;
+                scale.WeightScalar = (byte)pe.Weight;
 
                 Editor.PopulateFields(pk);
             }

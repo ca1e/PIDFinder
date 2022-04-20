@@ -46,6 +46,16 @@ namespace PIDFinder
             };
         }
 
+        private int TypeXor()
+        {
+            return RNGMethod switch
+            {
+                MethodType.Method1 => 8,
+                MethodType.Roaming8b => 16,
+                _ => throw new NotSupportedException(),
+            };
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             IsRunning(true);
@@ -56,6 +66,7 @@ namespace PIDFinder
                 () =>
                 {
                     var seed = RandUtil.Rand32();
+                    pkmConsis1.ShinyXor = TypeXor();
 
                     while (true)
                     {

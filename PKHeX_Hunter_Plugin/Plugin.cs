@@ -3,7 +3,7 @@ using System;
 using System.Windows.Forms;
 using System.Diagnostics;
 
-namespace PKHeX_Roaming8b_Plugin
+namespace PKHeX_Hunter_Plugin
 {
     internal class Plugin : IPlugin
     {
@@ -34,7 +34,8 @@ namespace PKHeX_Roaming8b_Plugin
             var items = menuStrip.Items;
             if (items.Find(ParentMenuParent, false)[0] is not ToolStripDropDownItem tools)
                 return;
-            Hunter = new ToolStripMenuItem(Name) { Visible = false }; // only visible for BD/SP
+            // only visible for specified game version
+            Hunter = new ToolStripMenuItem(Name) { Visible = false };
             Hunter.Click += (s, e) => Open();
             tools.DropDownItems.Add(Hunter);
         }
@@ -43,7 +44,7 @@ namespace PKHeX_Roaming8b_Plugin
         {
             var sav = SaveFileEditor.SAV;
             var game = (GameVersion)sav.Game;
-            if (game != GameVersion.BD && game != GameVersion.SP)
+            if (GameVersion.BDSP.Contains(game) || GameVersion.RSE.Contains(game))
                 return;
             var frm = new Searcher(SaveFileEditor, PKMEditor);
             frm.Show();
@@ -55,7 +56,11 @@ namespace PKHeX_Roaming8b_Plugin
             if (Hunter == null)
                 return;
             var sav = SaveFileEditor.SAV;
-            Hunter.Visible = sav is SAV8BS;
+            Hunter.Visible = sav switch
+            {
+                SAV8BS or SAV7SM => true,
+                _ => false,
+            };
         }
 
         public bool TryLoadFile(string filePath)

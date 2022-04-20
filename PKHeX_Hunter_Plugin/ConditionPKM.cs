@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace PKHeX_Roaming8b_Plugin
+namespace PKHeX_Hunter_Plugin
 {
     public partial class ConditionPKM : UserControl
     {
         private CheckRule rules = new();
         private ShinyType selectedShiny = ShinyType.None;
+        public int ShinyXor { get; set; } = 16;
+
         public ConditionPKM()
         {
             InitializeComponent();
@@ -56,8 +58,8 @@ namespace PKHeX_Roaming8b_Plugin
             var matchShiny = selectedShiny switch
             {
                 ShinyType.Square => pkm.ShinyStatus == 0,
-                ShinyType.Star => pkm.ShinyStatus < 16 && pkm.ShinyStatus != 0,
-                ShinyType.Shiny => pkm.ShinyStatus < 16,
+                ShinyType.Star => pkm.ShinyStatus < ShinyXor && pkm.ShinyStatus != 0,
+                ShinyType.Shiny => pkm.ShinyStatus < ShinyXor,
                 // ShinyType.None => pkm.ShinyStatus >= 16,
                 _ => true,
             };

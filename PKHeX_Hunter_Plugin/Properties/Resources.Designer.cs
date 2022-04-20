@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace PKHeX_Roaming8b_Plugin.Properties {
+namespace PKHeX_Hunter_Plugin.Properties {
     using System;
     
     

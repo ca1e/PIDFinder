@@ -1,6 +1,6 @@
 ﻿using PKHeX.Core;
 
-namespace PKHeX_Roaming8b_Plugin
+namespace PKHeX_Hunter_Plugin
 {
     internal static class Roaming8bRNG
     {
