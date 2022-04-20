@@ -5,7 +5,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
     <LangVersion>10</LangVersion>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

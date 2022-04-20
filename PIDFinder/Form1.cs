@@ -61,13 +61,13 @@ namespace PIDFinder
             IsRunning(true);
             textBox3.Text = "searching...";
 
+            pkmConsis1.ShinyXor = TypeXor();
+
             tokenSource = new();
             Task.Factory.StartNew(
                 () =>
                 {
-                    var seed = RandUtil.Rand32();
-                    pkmConsis1.ShinyXor = TypeXor();
-
+                    var seed = RandUtil.Rand32();     
                     while (true)
                     {
                         if (tokenSource.IsCancellationRequested)

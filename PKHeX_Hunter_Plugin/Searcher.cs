@@ -1,5 +1,5 @@
 ﻿using PKHeX.Core;
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,10 +9,17 @@ namespace PKHeX_Hunter_Plugin
 {
     public partial class Searcher : Form
     {
+        enum MethodType
+        {
+            Method1,
+            Roaming8b,
+        }
         private ISaveFileProvider SAV { get; }
         private IPKMView Editor { get; }
 
         private CancellationTokenSource tokenSource = new();
+
+        private MethodType RNGMethod = MethodType.Method1;
 
         public Searcher(ISaveFileProvider sav, IPKMView editor)
         {
@@ -20,35 +27,102 @@ namespace PKHeX_Hunter_Plugin
             Editor = editor;
 
             InitializeComponent();
+        
+            BindingData();
+        }
+
+        private void BindingData()
+        {
+            this.methodTypeBox.DataSource = Enum.GetNames(typeof(MethodType));
+            this.methodTypeBox.SelectedIndexChanged += (_, __) =>
+            {
+                RNGMethod = (MethodType)Enum.Parse(typeof(MethodType), this.methodTypeBox.SelectedItem.ToString(), false);
+            };
+            this.methodTypeBox.SelectedIndex = 0;
         }
 
         private void show(PkmEntry pe)
         {
-            //int species = radioButton2.Checked ? 488 : 481;
-            int species = 285;
+            int species = GetSpecies();
+            var vers = GetSearchVer();
 
-            var encs = EncounterUtil.SearchEncounters(SAV.SAV.BlankPKM, (GameVersion)SAV.SAV.Game, species);
-            var criteria = EncounterUtil.GetCriteria(Editor.Data);
-            var enc = encs.First();
+            var encs = EncounterUtil.SearchEncounters(species, 0, SAV.SAV.BlankPKM, vers);
+            // skip egg
+            var enc = encs.Where(z => z.EggEncounter == false).First();
+
             if (enc != null)
             {
+                var criteria = EncounterUtil.GetCriteria(enc, Editor.Data);
                 var pk = enc.ConvertToPKM(SAV.SAV, criteria);
-
+                pk.SetAbilityIndex((int)pe.Ability);
                 pk.EncryptionConstant = (uint)pe.EC;
                 pk.PID = pe.PID;
-                pk.SetAbilityIndex((int)pe.Ability);
                 pk.IV_HP = (int)pe.HP;
                 pk.IV_ATK = (int)pe.Atk;
                 pk.IV_DEF = (int)pe.Def;
                 pk.IV_SPA = (int)pe.SpA;
                 pk.IV_SPD = (int)pe.SpD;
                 pk.IV_SPE = (int)pe.Spe;
-                var scale = (IScaledSize)pk;
-                scale.HeightScalar = (byte)pe.Height;
-                scale.WeightScalar = (byte)pe.Weight;
+                if(pk is IScaledSize s) {
+                    s.HeightScalar = (byte)pe.Height;
+                    s.WeightScalar = (byte)pe.Weight;
+                }
 
-                Editor.PopulateFields(pk);
+                pk.RefreshChecksum();
+                Editor.PopulateFields(pk, false);
             }
+        }
+
+        private PkmEntry GenPkm(uint seed)
+        {
+            
+            //MessageBox.Show($"{((ITrainerID)SAV.SAV).SID}, {((ITrainerID)SAV.SAV).TID}");
+            return RNGMethod switch
+            {
+                MethodType.Method1 => Method1RNG.GenPkm(seed, SAV.SAV),
+                MethodType.Roaming8b => Roaming8bRNG.GenPkm(seed, SAV.SAV),
+                _ => throw new NotSupportedException(),
+            };
+        }
+
+        private uint NextSeed(uint seed)
+        {
+            return RNGMethod switch
+            {
+                MethodType.Method1 => Method1RNG.Next(seed),
+                MethodType.Roaming8b => Roaming8bRNG.Next(seed),
+                _ => throw new NotSupportedException(),
+            };
+        }
+
+        private int TypeXor()
+        {
+            return RNGMethod switch
+            {
+                MethodType.Method1 => 8,
+                MethodType.Roaming8b => 16,
+                _ => throw new NotSupportedException(),
+            };
+        }
+
+        private int GetSpecies()
+        {
+            return RNGMethod switch
+            {
+                MethodType.Method1 => 285,
+                MethodType.Roaming8b => radioButton2.Checked ? 488 : 481,
+                _ => throw new NotSupportedException(),
+            };
+        }
+
+        private GameVersion GetSearchVer()
+        {
+            return RNGMethod switch
+            {
+                MethodType.Method1 => GameVersion.E,
+                MethodType.Roaming8b => (GameVersion)SAV.SAV.Game,
+                _ => throw new NotSupportedException(),
+            };
         }
 
         private void IsRunning(bool running)
@@ -64,18 +138,19 @@ namespace PKHeX_Hunter_Plugin
             IsRunning(true);
             seedBox.Text = "searching...";
 
+            conditionPKM1.ShinyXor = TypeXor();
+
             tokenSource = new();
             Task.Factory.StartNew(
                 () =>
                 {
                     var seed = Util.Rand32();
-                    var xoro = new Xoroshiro128Plus8b(seed);
                     while (true)
                     {
                         if (tokenSource.IsCancellationRequested)
                             return;
 
-                        var pkm = Roaming8bRNG.GenPkm(seed, SAV.SAV);
+                        var pkm = GenPkm(seed);
                         if (conditionPKM1.Check(pkm))
                         {
                             this.Invoke(() =>
@@ -84,7 +159,7 @@ namespace PKHeX_Hunter_Plugin
                             });
                             break;
                         }
-                        seed = (uint)xoro.Next();
+                        seed = NextSeed(seed);
                     }
 
                     this.Invoke(() =>
@@ -107,7 +182,7 @@ namespace PKHeX_Hunter_Plugin
             var result = uint.TryParse(seedBox.Text, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out var seed);
             if(result)
             {
-                var pkm = Roaming8bRNG.GenPkm(seed, SAV.SAV);
+                var pkm = GenPkm(seed);
                 show(pkm);
             }
         }

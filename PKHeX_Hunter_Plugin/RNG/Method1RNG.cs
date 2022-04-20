@@ -4,16 +4,18 @@ namespace PKHeX_Hunter_Plugin
 {
     internal static class Method1RNG
     {
+        private const int shift = 16;
+
+        public static uint Next(uint seed) => RNG.LCRNG.Next(seed);
+
         public static PkmEntry GenPkm(uint seed, ITrainerID trainer)
         {
-            var rng = new Xoroshiro128Plus8b(seed);
+            var pidLower = RNG.LCRNG.Next(seed) >> shift;
+            var pidUpper = RNG.LCRNG.Advance(seed, 2) >> shift;
+            var dvLower = RNG.LCRNG.Advance(seed, 3) >> shift;
+            var dvUpper = RNG.LCRNG.Advance(seed, 4) >> shift;
 
-            var pidLower = rng.NextUInt();
-            var pidUpper = rng.NextUInt();
-            var dvLower = rng.NextUInt();
-            var dvUpper = rng.NextUInt();
-
-            var pid = combineRNG(pidUpper, pidLower, 16);
+            var pid = combineRNG(pidUpper, pidLower, shift);
             var ivs = dvsToIVs(dvUpper, dvLower);
             var rare = GetShinyXor(pid, trainer);
 

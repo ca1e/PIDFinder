@@ -44,7 +44,7 @@ namespace PKHeX_Hunter_Plugin
         {
             var sav = SaveFileEditor.SAV;
             var game = (GameVersion)sav.Game;
-            if (GameVersion.BDSP.Contains(game) || GameVersion.RSE.Contains(game))
+            if (!GameVersion.BDSP.Contains(game) && !GameVersion.SM.Contains(game))
                 return;
             var frm = new Searcher(SaveFileEditor, PKMEditor);
             frm.Show();

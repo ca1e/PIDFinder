@@ -6,6 +6,9 @@ namespace PKHeX_Hunter_Plugin
     {
         private const int FlawlessIVs = 3;
         private const uint UNSET = 255;
+
+        public static uint Next(uint seed) => (uint)new Xoroshiro128Plus8b(seed).Next();
+        
         public static PkmEntry GenPkm(uint seed, ITrainerID trainer)
         {
             var xoro = new Xoroshiro128Plus8b(seed);
