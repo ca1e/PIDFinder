@@ -35,7 +35,7 @@ namespace PKHeX_Hunter_Plugin
             if (items.Find(ParentMenuParent, false)[0] is not ToolStripDropDownItem tools)
                 return;
             // only visible for specified game version
-            Hunter = new ToolStripMenuItem(Name) { Visible = false };
+            Hunter = new ToolStripMenuItem(Name) { Visible = true };
             Hunter.Click += (s, e) => Open();
             tools.DropDownItems.Add(Hunter);
         }
@@ -44,8 +44,8 @@ namespace PKHeX_Hunter_Plugin
         {
             var sav = SaveFileEditor.SAV;
             var game = (GameVersion)sav.Game;
-            if (!GameVersion.BDSP.Contains(game) && !GameVersion.SM.Contains(game))
-                return;
+            //if (!GameVersion.BDSP.Contains(game) && !GameVersion.Gen7.Contains(game))
+            //    return;
             var frm = new Searcher(SaveFileEditor, PKMEditor);
             frm.Show();
         }
@@ -56,11 +56,11 @@ namespace PKHeX_Hunter_Plugin
             if (Hunter == null)
                 return;
             var sav = SaveFileEditor.SAV;
-            Hunter.Visible = sav switch
-            {
-                SAV8BS or SAV7SM => true,
-                _ => false,
-            };
+            //Hunter.Visible = sav switch
+            //{
+            //     SAV8BS or SAV7 => true,
+            //    _ => false,
+            //};
         }
 
         public bool TryLoadFile(string filePath)

@@ -1,4 +1,5 @@
 ﻿using PKHeX.Core;
+using PKHeX.Core.Searching;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace PKHeX_Hunter_Plugin
             Method1,
             Roaming8b,
         }
-        private ISaveFileProvider SAV { get; }
+        private SaveFile SAV { get; }
         private IPKMView Editor { get; }
 
         private CancellationTokenSource tokenSource = new();
@@ -24,7 +25,7 @@ namespace PKHeX_Hunter_Plugin
 
         public Searcher(ISaveFileProvider sav, IPKMView editor)
         {
-            SAV = sav;
+            SAV = sav.SAV;
             Editor = editor;
 
             InitializeComponent();
@@ -56,20 +57,57 @@ namespace PKHeX_Hunter_Plugin
             CB_GameOrigin.SelectedIndex = 0;
         }
 
+        private SearchSettings GetSearchSettings()
+        {
+            var settings = new SearchSettings
+            {
+                Format = SAV.Generation, // 0->(n-1) => 1->n
+                Generation = SAV.Generation,
+
+                Species = WinFormsUtil.GetIndex(CB_Species),
+
+                Version = WinFormsUtil.GetIndex(CB_GameOrigin),
+
+                SearchEgg = false, // skip egg
+            };
+
+            return settings;
+        }
+
+        private IEnumerable<IEncounterInfo> SearchDatabase()
+        {
+            var settings = GetSearchSettings();
+            var versions = settings.GetVersions(SAV);
+
+            var pk = SAV.BlankPKM;
+
+            var species = settings.Species;
+            var results = EncounterUtil.GetAllSpeciesFormEncounters(species, SAV.Personal, versions, pk);
+            results = results.Where(z => z.EggEncounter == settings.SearchEgg);
+
+            // return filtered results
+            var comparer = new ReferenceComparer<IEncounterInfo>();
+            results = results.Distinct(comparer); // only distinct objects
+
+            return results;
+        }
+
         private void show(PkmEntry pe)
         {
-            int species = WinFormsUtil.GetIndex(CB_Species);
-            var Version = WinFormsUtil.GetIndex(CB_GameOrigin);
+            var encs = SearchDatabase();
+            var results = encs.ToList();
+            if (results.Count == 0)
+            {
+                WinFormsUtil.Alert(MessageStrings.MsgDBSearchNone);
+                return;
+            }
 
-            var encs = EncounterUtil.SearchEncounters(species, 0, SAV.SAV.BlankPKM, (GameVersion)Version);
-
-            // skip egg
-            var enc = encs.Where(z => z.EggEncounter == false).First();
+            var enc = encs.First();
 
             if (enc != null)
             {
                 var criteria = EncounterUtil.GetCriteria(enc, Editor.Data);
-                var pk = enc.ConvertToPKM(SAV.SAV, criteria);
+                var pk = enc.ConvertToPKM(SAV, criteria);
                 pk.SetAbilityIndex((int)pe.Ability);
                 pk.EncryptionConstant = (uint)pe.EC;
                 pk.PID = pe.PID;
@@ -95,8 +133,8 @@ namespace PKHeX_Hunter_Plugin
             //MessageBox.Show($"{((ITrainerID)SAV.SAV).SID}, {((ITrainerID)SAV.SAV).TID}");
             return RNGMethod switch
             {
-                MethodType.Method1 => Method1RNG.GenPkm(seed, SAV.SAV),
-                MethodType.Roaming8b => Roaming8bRNG.GenPkm(seed, SAV.SAV),
+                MethodType.Method1 => Method1RNG.GenPkm(seed, SAV),
+                MethodType.Roaming8b => Roaming8bRNG.GenPkm(seed, SAV),
                 _ => throw new NotSupportedException(),
             };
         }
@@ -126,7 +164,7 @@ namespace PKHeX_Hunter_Plugin
             return RNGMethod switch
             {
                 MethodType.Method1 => GameVersion.E,
-                MethodType.Roaming8b => (GameVersion)SAV.SAV.Game,
+                MethodType.Roaming8b => (GameVersion)SAV.Game,
                 _ => throw new NotSupportedException(),
             };
         }

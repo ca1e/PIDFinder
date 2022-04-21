@@ -6,7 +6,6 @@ namespace PKHeX_Hunter_Plugin
     public partial class ConditionPKM : UserControl
     {
         private CheckRule rules = new();
-        private ShinyType selectedShiny = ShinyType.None;
         public int ShinyXor { get; set; } = 16;
 
         public ConditionPKM()
@@ -34,7 +33,7 @@ namespace PKHeX_Hunter_Plugin
             this.comboBox1.DataSource = Enum.GetNames(typeof(ShinyType));
             this.comboBox1.SelectedIndexChanged += (_, __) =>
             {
-                selectedShiny = (ShinyType)Enum.Parse(typeof(ShinyType), this.comboBox1.SelectedItem.ToString(), false);
+                rules.Shiny = (ShinyType)Enum.Parse(typeof(ShinyType), this.comboBox1.SelectedItem.ToString(), false);
             };
             this.comboBox1.SelectedIndex = 0;
         }
@@ -55,7 +54,7 @@ namespace PKHeX_Hunter_Plugin
             if (pkm.Spe < rules.minSpe || pkm.Spe > rules.maxSpe)
                 return false;
             // check shiny
-            var matchShiny = selectedShiny switch
+            var matchShiny = rules.Shiny switch
             {
                 ShinyType.Square => pkm.ShinyStatus == 0,
                 ShinyType.Star => pkm.ShinyStatus < ShinyXor && pkm.ShinyStatus != 0,
@@ -102,6 +101,14 @@ namespace PKHeX_Hunter_Plugin
         //
         public uint minSpe { get; set; }
         public uint maxSpe { get; set; } = 31;
+
+        public int Ability { get; set; }
+
+        public int Nature { get; set; }
+
+        public int Gender { get; set; }
+
+        public ShinyType Shiny = ShinyType.None;
     }
 
     enum ShinyType : byte
