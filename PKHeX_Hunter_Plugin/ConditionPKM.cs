@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PKHeX.Core;
+using System;
 using System.Windows.Forms;
 
 namespace PKHeX_Hunter_Plugin
@@ -6,7 +7,7 @@ namespace PKHeX_Hunter_Plugin
     public partial class ConditionPKM : UserControl
     {
         private CheckRule rules = new();
-        public int ShinyXor { get; set; } = 16;
+        public int Generation { get; set; } = 8;
 
         public ConditionPKM()
         {
@@ -30,39 +31,38 @@ namespace PKHeX_Hunter_Plugin
             this.SpeMin.DataBindings.Add("Text", rules, "minSpe");
             this.SpeMax.DataBindings.Add("Text", rules, "maxSpe");
 
-            this.comboBox1.DataSource = Enum.GetNames(typeof(ShinyType));
-            this.comboBox1.SelectedIndexChanged += (_, __) =>
+            CB_Natures.MaxDropDownItems = GameInfo.NatureDataSource.Count;
+            CB_Natures.Text = MessageStrings.MsgAny;
+            CB_Natures.DefaultValue = MessageStrings.MsgAny;
+            CB_Natures.Items.AddRange(GameInfo.Strings.natures);
+
+            CB_Shiny.DataSource = Enum.GetNames(typeof(ShinyType));
+            CB_Shiny.SelectedIndexChanged += (_, __) =>
             {
-                rules.Shiny = (ShinyType)Enum.Parse(typeof(ShinyType), this.comboBox1.SelectedItem.ToString(), false);
+                rules.Shiny = (ShinyType)CB_Shiny.SelectedIndex;
             };
-            this.comboBox1.SelectedIndex = 0;
+
+            CB_Shiny.SelectedIndex = 0;
         }
 
         public bool Check(PkmEntry pkm)
         {
             // check ivs
-            if (pkm.HP < rules.minHP || pkm.HP > rules.maxHP)
+            if (! rules.CheckHP(pkm.HP))
                 return false;
-            if (pkm.Atk < rules.minAtk || pkm.Atk > rules.maxAtk)
+            if (! rules.CheckAtk(pkm.Atk))
                 return false;
-            if (pkm.Def < rules.minDef || pkm.Def > rules.maxDef)
+            if (! rules.CheckDef(pkm.Def))
                 return false;
-            if (pkm.SpA < rules.minSpA || pkm.SpA > rules.maxSpA)
+            if (! rules.CheckSpA(pkm.SpA))
                 return false;
-            if (pkm.SpD < rules.minSpD || pkm.SpD > rules.maxSpD)
+            if (! rules.CheckSpD(pkm.SpD))
                 return false;
-            if (pkm.Spe < rules.minSpe || pkm.Spe > rules.maxSpe)
+            if (! rules.CheckSpe(pkm.Spe))
                 return false;
             // check shiny
-            var matchShiny = rules.Shiny switch
-            {
-                ShinyType.Square => pkm.ShinyStatus == 0,
-                ShinyType.Star => pkm.ShinyStatus < ShinyXor && pkm.ShinyStatus != 0,
-                ShinyType.Shiny => pkm.ShinyStatus < ShinyXor,
-                // ShinyType.None => pkm.ShinyStatus >= 16,
-                _ => true,
-            };
-            if (!matchShiny) return false;
+            if (! rules.CheckShiny(pkm.ShinyStatus, Generation))
+                return false;
             return true;
         }
 
@@ -77,43 +77,60 @@ namespace PKHeX_Hunter_Plugin
                 iv = 0;
                 txtbox.Text = "0";
             }
-
-            //System.Diagnostics.Debug.Print(iv.ToString());
         }
     }
 
-    class CheckRule
+    sealed class CheckRule
     {
         public uint minHP { get; set; }
         public uint maxHP { get; set; } = 31;
-        //
+        public bool CheckHP(uint HP) => (HP >= minHP && HP <= maxHP);
+
         public uint minAtk { get; set; }
         public uint maxAtk { get; set; } = 31;
-        //
+        public bool CheckAtk(uint Atk) => (Atk >= minAtk && Atk <= maxAtk);
+
         public uint minDef { get; set; }
         public uint maxDef { get; set; } = 31;
-        //
+        public bool CheckDef(uint Def) => (Def >= minDef && Def <= maxDef);
+
         public uint minSpA { get; set; }
         public uint maxSpA { get; set; } = 31;
-        //
+        public bool CheckSpA(uint SpA) => (SpA >= minSpA && SpA <= maxSpA);
+
         public uint minSpD { get; set; }
         public uint maxSpD { get; set; } = 31;
-        //
+        public bool CheckSpD(uint SpD) => (SpD >= minSpD && SpD <= maxSpD);
+
         public uint minSpe { get; set; }
         public uint maxSpe { get; set; } = 31;
-
+        public bool CheckSpe(uint Spe) => (Spe >= minSpe && Spe <= maxSpe);
+        //
         public int Ability { get; set; }
 
-        public int Nature { get; set; }
+        public int[] Natures { get; set; }
 
         public int Gender { get; set; }
 
-        public ShinyType Shiny = ShinyType.None;
+        public ShinyType Shiny = ShinyType.Any;
+        public bool CheckShiny(int shinyxor, int gen = 7)
+        {
+            var xornum = (gen >= 7 ? 16 : 8);
+            return Shiny switch
+            {
+                ShinyType.Square => shinyxor == 0,
+                ShinyType.Star => shinyxor < xornum && shinyxor != 0,
+                ShinyType.Shiny => shinyxor < xornum,
+                ShinyType.No => shinyxor >= xornum,
+                _ => true,
+            };
+        }
     }
 
     enum ShinyType : byte
     {
-        None,
+        Any,
+        No,
         Shiny,
         Star,
         Square,

@@ -47,7 +47,13 @@
             this.AtkMax = new System.Windows.Forms.TextBox();
             this.HPMax = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.CB_Shiny = new System.Windows.Forms.ComboBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.CB_Natures = new PKHeX_Hunter_Plugin.CheckedComboBox();
+            this.CB_Ability = new System.Windows.Forms.ComboBox();
+            this.CB_Gender = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // label9
@@ -239,27 +245,94 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 162);
+            this.label1.Location = new System.Drawing.Point(174, 122);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(35, 12);
             this.label1.TabIndex = 48;
             this.label1.Text = "Shiny";
             // 
-            // comboBox1
+            // CB_Shiny
             // 
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(50, 160);
-            this.comboBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(82, 20);
-            this.comboBox1.TabIndex = 49;
+            this.CB_Shiny.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.CB_Shiny.FormattingEnabled = true;
+            this.CB_Shiny.Location = new System.Drawing.Point(215, 119);
+            this.CB_Shiny.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.CB_Shiny.Name = "CB_Shiny";
+            this.CB_Shiny.Size = new System.Drawing.Size(92, 20);
+            this.CB_Shiny.TabIndex = 49;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(168, 37);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(41, 12);
+            this.label3.TabIndex = 50;
+            this.label3.Text = "Nature";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(162, 66);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(47, 12);
+            this.label4.TabIndex = 51;
+            this.label4.Text = "Ability";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(168, 96);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(41, 12);
+            this.label5.TabIndex = 52;
+            this.label5.Text = "Gender";
+            // 
+            // CB_Natures
+            // 
+            this.CB_Natures.CheckOnClick = true;
+            this.CB_Natures.DefaultValue = null;
+            this.CB_Natures.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
+            this.CB_Natures.DropDownHeight = 1;
+            this.CB_Natures.FormattingEnabled = true;
+            this.CB_Natures.IntegralHeight = false;
+            this.CB_Natures.Location = new System.Drawing.Point(215, 34);
+            this.CB_Natures.Name = "CB_Natures";
+            this.CB_Natures.Size = new System.Drawing.Size(92, 22);
+            this.CB_Natures.TabIndex = 53;
+            this.CB_Natures.ValueSeparator = ", ";
+            // 
+            // CB_Ability
+            // 
+            this.CB_Ability.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.CB_Ability.FormattingEnabled = true;
+            this.CB_Ability.Location = new System.Drawing.Point(215, 64);
+            this.CB_Ability.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.CB_Ability.Name = "CB_Ability";
+            this.CB_Ability.Size = new System.Drawing.Size(92, 20);
+            this.CB_Ability.TabIndex = 54;
+            // 
+            // CB_Gender
+            // 
+            this.CB_Gender.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.CB_Gender.FormattingEnabled = true;
+            this.CB_Gender.Location = new System.Drawing.Point(215, 91);
+            this.CB_Gender.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.CB_Gender.Name = "CB_Gender";
+            this.CB_Gender.Size = new System.Drawing.Size(92, 20);
+            this.CB_Gender.TabIndex = 55;
             // 
             // ConditionPKM
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.CB_Gender);
+            this.Controls.Add(this.CB_Ability);
+            this.Controls.Add(this.CB_Natures);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.CB_Shiny);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.label10);
@@ -281,7 +354,7 @@
             this.Controls.Add(this.HPMax);
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "ConditionPKM";
-            this.Size = new System.Drawing.Size(147, 188);
+            this.Size = new System.Drawing.Size(329, 155);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -308,6 +381,12 @@
         private System.Windows.Forms.TextBox AtkMax;
         private System.Windows.Forms.TextBox HPMax;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox CB_Shiny;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private PKHeX_Hunter_Plugin.CheckedComboBox CB_Natures;
+        private System.Windows.Forms.ComboBox CB_Ability;
+        private System.Windows.Forms.ComboBox CB_Gender;
     }
 }
