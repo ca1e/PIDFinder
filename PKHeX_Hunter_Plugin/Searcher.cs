@@ -15,6 +15,7 @@ namespace PKHeX_Hunter_Plugin
         {
             Method1,
             Roaming8b,
+            Overworld8,
         }
         private SaveFile SAV { get; }
         private IPKMView Editor { get; }
@@ -104,6 +105,7 @@ namespace PKHeX_Hunter_Plugin
             {
                 MethodType.Method1 => Method1RNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
                 MethodType.Roaming8b => Roaming8bRNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
+                MethodType.Overworld8 => Overworld8RNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
                 _ => throw new NotSupportedException(),
             };
         }
@@ -114,12 +116,15 @@ namespace PKHeX_Hunter_Plugin
             {
                 MethodType.Method1 => Method1RNG.Next(seed),
                 MethodType.Roaming8b => Roaming8bRNG.Next(seed),
+                MethodType.Overworld8 => Overworld8RNG.Next(seed),
                 _ => throw new NotSupportedException(),
             };
         }
 
         private void ShowEntity(PKM pk)
         {
+            pk.RefreshChecksum();
+
             Editor.PopulateFields(pk, false);
         }
 

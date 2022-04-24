@@ -52,7 +52,6 @@ namespace PKHeX_Hunter_Plugin
             pk.IV_SPA = ivs[3];
             pk.IV_SPD = ivs[4];
             pk.IV_SPE = ivs[5];
-            pk.RefreshChecksum();
 
             // pass the rule check
             return true;

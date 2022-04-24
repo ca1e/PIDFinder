@@ -77,8 +77,6 @@ namespace PKHeX_Hunter_Plugin
                 s.WeightScalar = (byte)weight;
             }
 
-            pk.RefreshChecksum();
-
             // pass the rule check
             return true;
         }
