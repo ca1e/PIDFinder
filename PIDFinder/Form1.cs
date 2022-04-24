@@ -27,15 +27,7 @@ namespace PIDFinder
 
             checkBoxComboBox1.Items.AddRange(Enum.GetNames(typeof(MethodType)));
             checkBoxComboBox1.SelectedIndex = 0;
-            //checkBoxComboBox1.ClearSelection();
-            var CellStyle = new DataGridViewCellStyle();
-            checkBoxComboBox1.Font = CellStyle.Font;
-            for (int checkBoxIndex = 1; checkBoxIndex < checkBoxComboBox1.Items.Count; checkBoxIndex++)
-            {
-                checkBoxComboBox1.CheckBoxItems[checkBoxIndex].Text =
-                    (checkBoxComboBox1.CheckBoxItems[checkBoxIndex].ComboBoxItem).ToString();
-                checkBoxComboBox1.CheckBoxItems[checkBoxIndex].Font = CellStyle.Font;
-            }
+            checkBoxComboBox1.ClearSelection();
 
             checkBoxComboBox1.CheckBoxItems[0].Checked = true;
             checkBoxComboBox1.CheckBoxItems[0].Checked = false;

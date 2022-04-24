@@ -53,7 +53,7 @@
             // 
             // seedBox
             // 
-            this.seedBox.Location = new System.Drawing.Point(18, 21);
+            this.seedBox.Location = new System.Drawing.Point(18, 211);
             this.seedBox.MaxLength = 64;
             this.seedBox.Name = "seedBox";
             this.seedBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -63,9 +63,9 @@
             // 
             // checkBTN
             // 
-            this.checkBTN.Location = new System.Drawing.Point(94, 48);
+            this.checkBTN.Location = new System.Drawing.Point(199, 209);
             this.checkBTN.Name = "checkBTN";
-            this.checkBTN.Size = new System.Drawing.Size(99, 23);
+            this.checkBTN.Size = new System.Drawing.Size(69, 23);
             this.checkBTN.TabIndex = 3;
             this.checkBTN.Text = "Lookup";
             this.checkBTN.UseVisualStyleBackColor = true;
@@ -86,7 +86,7 @@
             // 
             this.CB_Method.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.CB_Method.FormattingEnabled = true;
-            this.CB_Method.Location = new System.Drawing.Point(66, 88);
+            this.CB_Method.Location = new System.Drawing.Point(66, 79);
             this.CB_Method.Name = "CB_Method";
             this.CB_Method.Size = new System.Drawing.Size(127, 20);
             this.CB_Method.TabIndex = 5;
@@ -96,7 +96,7 @@
             this.CB_Species.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
             this.CB_Species.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
             this.CB_Species.FormattingEnabled = true;
-            this.CB_Species.Location = new System.Drawing.Point(66, 118);
+            this.CB_Species.Location = new System.Drawing.Point(66, 17);
             this.CB_Species.Margin = new System.Windows.Forms.Padding(0);
             this.CB_Species.Name = "CB_Species";
             this.CB_Species.Size = new System.Drawing.Size(127, 20);
@@ -106,7 +106,7 @@
             // 
             this.CB_GameOrigin.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.CB_GameOrigin.FormattingEnabled = true;
-            this.CB_GameOrigin.Location = new System.Drawing.Point(66, 147);
+            this.CB_GameOrigin.Location = new System.Drawing.Point(66, 46);
             this.CB_GameOrigin.Margin = new System.Windows.Forms.Padding(0);
             this.CB_GameOrigin.Name = "CB_GameOrigin";
             this.CB_GameOrigin.Size = new System.Drawing.Size(127, 20);
@@ -114,7 +114,6 @@
             // 
             // conditionPKM1
             // 
-            this.conditionPKM1.Generation = 8;
             this.conditionPKM1.Location = new System.Drawing.Point(220, 21);
             this.conditionPKM1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.conditionPKM1.Name = "conditionPKM1";
@@ -124,7 +123,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(16, 121);
+            this.label1.Location = new System.Drawing.Point(16, 20);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(47, 12);
             this.label1.TabIndex = 8;
@@ -133,7 +132,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(16, 150);
+            this.label2.Location = new System.Drawing.Point(16, 49);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(47, 12);
             this.label2.TabIndex = 9;
@@ -141,9 +140,9 @@
             // 
             // BTN_Encounter
             // 
-            this.BTN_Encounter.Location = new System.Drawing.Point(76, 184);
+            this.BTN_Encounter.Location = new System.Drawing.Point(66, 144);
             this.BTN_Encounter.Name = "BTN_Encounter";
-            this.BTN_Encounter.Size = new System.Drawing.Size(117, 38);
+            this.BTN_Encounter.Size = new System.Drawing.Size(127, 38);
             this.BTN_Encounter.TabIndex = 10;
             this.BTN_Encounter.Text = "寻找猎物";
             this.BTN_Encounter.UseVisualStyleBackColor = true;

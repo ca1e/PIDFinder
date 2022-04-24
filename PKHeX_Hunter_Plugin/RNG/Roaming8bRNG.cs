@@ -1,17 +1,20 @@
 ﻿using PKHeX.Core;
+using System;
 
 namespace PKHeX_Hunter_Plugin
 {
     internal static class Roaming8bRNG
     {
         private const int FlawlessIVs = 3;
-        private const uint UNSET = 255;
+        private const int UNSET = -1;
 
         public static uint Next(uint seed) => (uint)new Xoroshiro128Plus8b(seed).Next();
         
-        public static PkmEntry GenPkm(uint seed, ITrainerID trainer)
+        public static bool TryApplyFromSeed(ref PKM pk, ITrainerID trainer, CheckRule rules, uint seed)
         {
             var xoro = new Xoroshiro128Plus8b(seed);
+
+            // Check PID
             var fakeTID = xoro.NextUInt();
             var pid = xoro.NextUInt();
             var opid = pid;
@@ -19,12 +22,12 @@ namespace PKHeX_Hunter_Plugin
             pid = GetRevisedPID(fakeTID, pid, trainer);
             var rare = GetShinyXor(opid, fakeTID);
 
-            var ivs = new uint[6] { UNSET, UNSET, UNSET, UNSET, UNSET, UNSET };
+            Span<int> ivs = stackalloc [] { UNSET, UNSET, UNSET, UNSET, UNSET, UNSET };
 
             var determined = 0;
             while (determined < FlawlessIVs)
             {
-                var idx = xoro.NextUInt(6);
+                var idx = (int)xoro.NextUInt(6);
                 if (ivs[idx] != UNSET) continue;
                 ivs[idx] = 31;
                 determined++;
@@ -33,23 +36,51 @@ namespace PKHeX_Hunter_Plugin
             {
                 if (ivs[i] == UNSET)
                 {
-                    ivs[i] = xoro.NextUInt(32);
+                    ivs[i] = (int)xoro.NextUInt(32);
                 }
             }
             uint ability = xoro.NextUInt(2);
             uint height = xoro.NextUInt(0x81) + xoro.NextUInt(0x80);
             uint weight = xoro.NextUInt(0x81) + xoro.NextUInt(0x80);
 
-            return new PkmEntry
+            // check entity
+            if (!rules.CheckHP(ivs[0]))
+                return false;
+            if (!rules.CheckAtk(ivs[1]))
+                return false;
+            if (!rules.CheckDef(ivs[2]))
+                return false;
+            if (!rules.CheckSpA(ivs[3]))
+                return false;
+            if (!rules.CheckSpD(ivs[4]))
+                return false;
+            if (!rules.CheckSpe(ivs[5]))
+                return false;
+            if (!rules.CheckShiny((int)rare, 8))
+                return false;
+            if (!rules.CheckAbility((int)ability))
+                return false;
+
+            // fill poke entity
+            pk.SetAbilityIndex((int)ability);
+            pk.EncryptionConstant = seed;
+            pk.PID = pid;
+            pk.IV_HP = ivs[0];
+            pk.IV_ATK = ivs[1];
+            pk.IV_DEF = ivs[2];
+            pk.IV_SPA = ivs[3];
+            pk.IV_SPD = ivs[4];
+            pk.IV_SPE = ivs[5];
+            if (pk is IScaledSize s)
             {
-                PID = pid,
-                EC = seed,
-                ShinyStatus = (int)rare,
-                ivs = ivs,
-                Ability = ability,
-                Height = height,
-                Weight = weight
-            };
+                s.HeightScalar = (byte)height;
+                s.WeightScalar = (byte)weight;
+            }
+
+            pk.RefreshChecksum();
+
+            // pass the rule check
+            return true;
         }
 
         private static uint GetRevisedPID(uint fakeTID, uint pid, ITrainerID tr)
@@ -69,18 +100,12 @@ namespace PKHeX_Hunter_Plugin
             return pid ^ 0x1000_0000;
         }
 
-        private static int GetRareType(uint xor) => xor switch
+        private static Shiny GetRareType(uint xor) => xor switch
         {
-            0 => 2,
-            < 16 => 1,
-            _ => 0,
+            0 => Shiny.AlwaysSquare,
+         < 16 => Shiny.AlwaysStar,
+            _ => Shiny.Never,
         };
-
-        private static uint GetShinyNum(uint tid, uint sid, uint pid)
-        {
-            var oid = (sid << 16) | tid;
-            return GetShinyXor(pid, oid);
-        }
 
         private static uint GetShinyXor(uint pid, uint oid)
         {

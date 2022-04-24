@@ -91,41 +91,19 @@ namespace PKHeX_Hunter_Plugin
             return results;
         }
 
-        private void Show(PkmEntry pe)
+        private PKM GenEntity()
         {
-            if (Results.Count == 0)
-            {
-                WinFormsUtil.Alert(MessageStrings.MsgDBSearchNone);
-                return;
-            }
-
             var enc = Results[0];
             var criteria = EncounterUtil.GetCriteria(enc, Editor.Data);
-            var pk = enc.ConvertToPKM(SAV, criteria);
-            pk.SetAbilityIndex((int)pe.Ability);
-            pk.EncryptionConstant = (uint)pe.EC;
-            pk.PID = pe.PID;
-            pk.IV_HP = (int)pe.HP;
-            pk.IV_ATK = (int)pe.Atk;
-            pk.IV_DEF = (int)pe.Def;
-            pk.IV_SPA = (int)pe.SpA;
-            pk.IV_SPD = (int)pe.SpD;
-            pk.IV_SPE = (int)pe.Spe;
-            if(pk is IScaledSize s) {
-                s.HeightScalar = (byte)pe.Height;
-                s.WeightScalar = (byte)pe.Weight;
-            }
-
-            pk.RefreshChecksum();
-            Editor.PopulateFields(pk, false);
+            return enc.ConvertToPKM(SAV, criteria);
         }
 
-        private PkmEntry GenPkm(uint seed)
+        private bool CheckEntity(PKM pk, uint seed)
         {
             return RNGMethod switch
             {
-                MethodType.Method1 => Method1RNG.GenPkm(seed, SAV),
-                MethodType.Roaming8b => Roaming8bRNG.GenPkm(seed, SAV),
+                MethodType.Method1 => Method1RNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
+                MethodType.Roaming8b => Roaming8bRNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
                 _ => throw new NotSupportedException(),
             };
         }
@@ -140,14 +118,9 @@ namespace PKHeX_Hunter_Plugin
             };
         }
 
-        private int GetGeneration()
+        private void ShowEntity(PKM pk)
         {
-            return RNGMethod switch
-            {
-                MethodType.Method1 => 3,
-                MethodType.Roaming8b => 8,
-                _ => throw new NotSupportedException(),
-            };
+            Editor.PopulateFields(pk, false);
         }
 
         private void IsRunning(bool running)
@@ -171,31 +144,41 @@ namespace PKHeX_Hunter_Plugin
                 WinFormsUtil.Alert("可以狩猎！");
             }
             Results = results;
+
+            if (Results.Count == 0)
+            {
+                WinFormsUtil.Alert(MessageStrings.MsgDBSearchNone);
+            }
         }
 
-        private void BTN_Search_Click(object sender, System.EventArgs e)
+        private void BTN_Search_Click(object sender, EventArgs e)
         {
             IsRunning(true);
             seedBox.Text = "searching...";
-
-            conditionPKM1.Generation = GetGeneration();
 
             tokenSource = new();
             Task.Factory.StartNew(
                 () =>
                 {
+                    if (Results.Count == 0)
+                    {
+                        WinFormsUtil.Alert(MessageStrings.MsgDBSearchNone);
+                        return;
+                    }
+
+                    var pk = GenEntity();
+
                     var seed = Util.Rand32();
                     while (true)
                     {
                         if (tokenSource.IsCancellationRequested)
                             return;
 
-                        var pkm = GenPkm(seed);
-                        if (conditionPKM1.Check(pkm))
+                        if (CheckEntity(pk, seed))
                         {
                             this.Invoke(() =>
                             {
-                                Show(pkm);
+                                ShowEntity(pk);
                             });
                             break;
                         }
@@ -222,8 +205,9 @@ namespace PKHeX_Hunter_Plugin
             var result = uint.TryParse(seedBox.Text, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out var seed);
             if(result)
             {
-                var pkm = GenPkm(seed);
-                Show(pkm);
+                var pk = GenEntity();
+                CheckEntity(pk, seed);
+                ShowEntity(pk);
             }
         }
     }
