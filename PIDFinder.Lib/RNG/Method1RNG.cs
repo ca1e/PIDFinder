@@ -1,8 +1,8 @@
 using PKHeX.Core;
 
-namespace PKHeX_Hunter_Plugin
+namespace PIDFinder.Lib
 {
-    internal static class Method1RNG
+    public static class Method1RNG
     {
         private const int shift = 16;
 

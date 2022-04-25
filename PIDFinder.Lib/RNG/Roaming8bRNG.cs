@@ -1,9 +1,9 @@
 ﻿using PKHeX.Core;
 using System;
 
-namespace PKHeX_Hunter_Plugin
+namespace PIDFinder.Lib
 {
-    internal static class Roaming8bRNG
+    public static class Roaming8bRNG
     {
         private const int FlawlessIVs = 3;
         private const int UNSET = -1;

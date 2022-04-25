@@ -1,5 +1,6 @@
 ﻿using PKHeX.Core;
 using PKHeX.Core.Searching;
+using PIDFinder.Lib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,24 +75,6 @@ namespace PKHeX_Hunter_Plugin
             return settings;
         }
 
-        private IEnumerable<IEncounterInfo> SearchDatabase()
-        {
-            var settings = GetSearchSettings();
-            var versions = settings.GetVersions(SAV);
-
-            var pk = SAV.BlankPKM;
-
-            var species = settings.Species;
-            var results = EncounterUtil.GetAllSpeciesFormEncounters(species, SAV.Personal, versions, pk);
-            results = results.Where(z => z.EggEncounter == settings.SearchEgg);
-
-            // return filtered results
-            var comparer = new ReferenceComparer<IEncounterInfo>();
-            results = results.Distinct(comparer); // only distinct objects
-
-            return results;
-        }
-
         private PKM GenEntity()
         {
             var enc = Results[0];
@@ -103,9 +86,9 @@ namespace PKHeX_Hunter_Plugin
         {
             return RNGMethod switch
             {
-                MethodType.Method1 => Method1RNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
-                MethodType.Roaming8b => Roaming8bRNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
-                MethodType.Overworld8 => Overworld8RNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
+                MethodType.Method1 => PIDFinder.Lib.Method1RNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
+                MethodType.Roaming8b => PIDFinder.Lib.Roaming8bRNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
+                MethodType.Overworld8 => PIDFinder.Lib.Overworld8RNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
                 _ => throw new NotSupportedException(),
             };
         }
@@ -114,9 +97,9 @@ namespace PKHeX_Hunter_Plugin
         {
             return RNGMethod switch
             {
-                MethodType.Method1 => Method1RNG.Next(seed),
-                MethodType.Roaming8b => Roaming8bRNG.Next(seed),
-                MethodType.Overworld8 => Overworld8RNG.Next(seed),
+                MethodType.Method1 => PIDFinder.Lib.Method1RNG.Next(seed),
+                MethodType.Roaming8b => PIDFinder.Lib.Roaming8bRNG.Next(seed),
+                MethodType.Overworld8 => PIDFinder.Lib.Overworld8RNG.Next(seed),
                 _ => throw new NotSupportedException(),
             };
         }
@@ -138,7 +121,7 @@ namespace PKHeX_Hunter_Plugin
 
         private async void BTN_Encounter_Click(object sender, EventArgs e)
         {
-            var search = SearchDatabase();
+            var search = EncounterUtil.SearchDatabase(GetSearchSettings(), SAV);
             var results = await Task.Run(() => search.ToList()).ConfigureAwait(true);
             if (results.Count == 0)
             {

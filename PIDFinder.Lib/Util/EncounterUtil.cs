@@ -1,13 +1,29 @@
 using PKHeX.Core;
-using System;
-using System.Collections.Generic;
+using PKHeX.Core.Searching;
 using System.Runtime.CompilerServices;
 
-namespace PKHeX_Hunter_Plugin
+namespace PIDFinder.Lib
 {
-    internal static class EncounterUtil
+    public static class EncounterUtil
     {
-        public static IEnumerable<IEncounterInfo> GetAllSpeciesFormEncounters(int species, PersonalTable pt, IReadOnlyList<GameVersion> versions, PKM pk)
+        public static IEnumerable<IEncounterInfo> SearchDatabase(SearchSettings settings, SaveFile SAV)
+        {
+            var versions = settings.GetVersions(SAV);
+
+            var pk = SAV.BlankPKM;
+
+            var species = settings.Species;
+            var results = EncounterUtil.GetAllSpeciesFormEncounters(species, SAV.Personal, versions, pk);
+            results = results.Where(z => z.EggEncounter == settings.SearchEgg);
+
+            // return filtered results
+            var comparer = new ReferenceComparer<IEncounterInfo>();
+            results = results.Distinct(comparer); // only distinct objects
+
+            return results;
+        }
+
+        private static IEnumerable<IEncounterInfo> GetAllSpeciesFormEncounters(int species, PersonalTable pt, IReadOnlyList<GameVersion> versions, PKM pk)
         {
             var pi = pt.GetFormEntry(species, 0);
             var fc = pi.FormCount;
