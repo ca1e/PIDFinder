@@ -14,7 +14,8 @@ namespace PIDFinder.Lib
         private const int FlawlessIVs = 3;
         public static uint Next(uint seed) => (uint)new Xoroshiro128Plus(seed).Next();
 
-        public static bool TryApplyFromSeed(ref PKM pk, ITrainerID tr, CheckRule rules, uint seed)
+        /// <summary>由种子生成 SWSH 旷野生成结果；不满足筛选条件时返回 null。</summary>
+        public static PkmResult Generate(uint seed, ushort tid, ushort sid, CheckRule rules)
         {
             var xoro = new Xoroshiro128Plus(seed);
 
@@ -23,7 +24,7 @@ namespace PIDFinder.Lib
 
             // PID
             var pid = (uint)xoro.NextInt(uint.MaxValue);
-            var rare = GetShinyXor(pid, (uint)(tr.TID | (tr.SID << 16)));
+            var rare = GetShinyXor(pid, (uint)(tid | (sid << 16)));
 
             // IVs
             Span<int> ivs = stackalloc[] { UNSET, UNSET, UNSET, UNSET, UNSET, UNSET };
@@ -43,39 +44,60 @@ namespace PIDFinder.Lib
                     ivs[i] = (int)xoro.NextInt(32);
             }
 
+            var height = (byte)(xoro.NextInt(0x81) + xoro.NextInt(0x80));
+            var weight = (byte)(xoro.NextInt(0x81) + xoro.NextInt(0x80));
+
             // check entity
             if (!rules.CheckHP(ivs[0]))
-                return false;
+                return null;
             if (!rules.CheckAtk(ivs[1]))
-                return false;
+                return null;
             if (!rules.CheckDef(ivs[2]))
-                return false;
+                return null;
             if (!rules.CheckSpA(ivs[3]))
-                return false;
+                return null;
             if (!rules.CheckSpD(ivs[4]))
-                return false;
+                return null;
             if (!rules.CheckSpe(ivs[5]))
-                return false;
+                return null;
             if (!rules.CheckShiny((int)rare, 8))
-                return false;
-            
-            pk.EncryptionConstant = EC;
-            pk.PID = pid;
-            pk.IV_HP = ivs[0];
-            pk.IV_ATK = ivs[1];
-            pk.IV_DEF = ivs[2];
-            pk.IV_SPA = ivs[3];
-            pk.IV_SPD = ivs[4];
-            pk.IV_SPE = ivs[5];
+                return null;
 
-            // Remainder
+            return new PkmResult
+            {
+                Seed = seed,
+                EC = EC,
+                PID = pid,
+                ShinyXor = (int)rare,
+                IVs = ivs.ToArray(),
+                Nature = (int)(pid % 25),
+                Ability = (int)(pid & 1),
+                HeightScalar = height,
+                WeightScalar = weight,
+            };
+        }
+
+        /// <summary>由种子在 PKHeX 实体上应用 SWSH 旷野结果（保持原有写入副作用顺序）。</summary>
+        public static bool TryApplyFromSeed(ref PKM pk, ushort tid, ushort sid, CheckRule rules, uint seed)
+        {
+            var res = Generate(seed, tid, sid, rules);
+            if (res is null)
+                return false;
+
+            pk.EncryptionConstant = res.EC;
+            pk.PID = res.PID;
+            pk.IV_HP = res.IVs[0];
+            pk.IV_ATK = res.IVs[1];
+            pk.IV_DEF = res.IVs[2];
+            pk.IV_SPA = res.IVs[3];
+            pk.IV_SPD = res.IVs[4];
+            pk.IV_SPE = res.IVs[5];
             if (pk is IScaledSize scale)
             {
-                scale.HeightScalar = (byte)((int)xoro.NextInt(0x81) + (int)xoro.NextInt(0x80));
-                scale.WeightScalar = (byte)((int)xoro.NextInt(0x81) + (int)xoro.NextInt(0x80));
+                scale.HeightScalar = res.HeightScalar;
+                scale.WeightScalar = res.WeightScalar;
             }
 
-            // pass the rule check
             return true;
         }
 
@@ -115,15 +137,15 @@ namespace PIDFinder.Lib
             // Check forced shiny
             if (pk.IsShiny)
             {
-                if (GetIsShiny(pk.TID, pk.SID, pid))
+                if (GetIsShiny(pk.TID16, pk.SID16, pid))
                     return false;
 
-                pid = GetShinyPID(pk.TID, pk.SID, pid, 0);
+                pid = GetShinyPID(pk.TID16, pk.SID16, pid, 0);
                 return pid == pk.PID;
             }
 
             // Check forced non-shiny
-            if (!GetIsShiny(pk.TID, pk.SID, pid))
+            if (!GetIsShiny(pk.TID16, pk.SID16, pid))
                 return false;
 
             pid ^= 0x1000_0000;

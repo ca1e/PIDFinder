@@ -14,7 +14,7 @@ namespace PIDFinder
             _tid = 999_999;
         }
 
-        public ITrainerID GetSIDTID()
+        public PIDFinder.Lib.ITrainerIds GetSIDTID()
         {
             return new TSVID { _SID = _sid, _TID = _tid };
         }
@@ -45,7 +45,7 @@ namespace PIDFinder
         }
     }
 
-    public record TSVID : ITrainerID
+    public record TSVID : PIDFinder.Lib.ITrainerIds
     {
         int _fid
         {
@@ -57,7 +57,7 @@ namespace PIDFinder
         public uint _SID { get; init; }
         public uint _TID { get; init; }
 
-        public int TID
+        public ushort TID16
         {
             set
             {
@@ -65,11 +65,11 @@ namespace PIDFinder
             }
             get
             {
-                return _fid % 65536;
+                return (ushort)(_fid % 65536);
             }
         }
 
-        public int SID
+        public ushort SID16
         {
             set
             {
@@ -77,7 +77,7 @@ namespace PIDFinder
             }
             get
             {
-                return _fid / 65536;
+                return (ushort)(_fid / 65536);
             }
         }
     }

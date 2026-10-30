@@ -6,60 +6,91 @@ namespace PIDFinder.Lib
     {
         private const int shift = 16;
 
-        public static uint Next(uint seed) => RNG.LCRNG.Next(seed);
+        public static uint Next(uint seed) => LCRNG.Next(seed);
 
-        public static bool TryApplyFromSeed(ref PKM pk, ITrainerID trainer, CheckRule rules, uint seed)
+        /// <summary>由种子生成 Gen3 Method 1 结果；不满足筛选条件时返回 null。</summary>
+        public static PkmResult Generate(uint seed, ushort tid, ushort sid, CheckRule rules)
         {
-            var pidLower = RNG.LCRNG.Next(seed) >> shift;
-            var pidUpper = RNG.LCRNG.Advance(seed, 2) >> shift;
-            var dvLower = RNG.LCRNG.Advance(seed, 3) >> shift;
-            var dvUpper = RNG.LCRNG.Advance(seed, 4) >> shift;
+            var pidLower = LCRNG.Next(seed) >> shift;
+            var pidUpper = LCRNG.Advance(seed, 2) >> shift;
+            var dvLower = LCRNG.Advance(seed, 3) >> shift;
+            var dvUpper = LCRNG.Advance(seed, 4) >> shift;
 
             var pid = combineRNG(pidUpper, pidLower, shift);
-            var ivs = dvsToIVs(dvUpper, dvLower);
-            var rare = GetShinyXor(pid, trainer);
-            var nature = pid % 25;
-            var ability = pid & 1;
+            var rare = GetShinyXor(pid, tid, sid);
+            var nature = (int)(pid % 25);
+            var ability = (int)(pid & 1);
 
+            // 廉价条件前置：闪光/性格/特性只依赖 PID，失败可跳过 IV 计算与分配
+            if (!rules.CheckShiny((int)rare, 3))
+                return null;
+            if (!rules.CheckNature(nature))
+                return null;
+            if (!rules.CheckAbility(ability))
+                return null;
+
+            var ivs = dvsToIVs(dvUpper, dvLower);
 
             // check entity
             if (!rules.CheckHP(ivs[0]))
-                return false;
+                return null;
             if (!rules.CheckAtk(ivs[1]))
-                return false;
+                return null;
             if (!rules.CheckDef(ivs[2]))
-                return false;
+                return null;
             if (!rules.CheckSpA(ivs[3]))
-                return false;
+                return null;
             if (!rules.CheckSpD(ivs[4]))
-                return false;
+                return null;
             if (!rules.CheckSpe(ivs[5]))
-                return false;
+                return null;
             if (!rules.CheckShiny((int)rare, 3))
-                return false;
+                return null;
             if (!rules.CheckNature((int)nature))
-                return false;
+                return null;
             if (!rules.CheckAbility((int)ability))
+                return null;
+
+            return new PkmResult
+            {
+                Seed = seed,
+                EC = seed,
+                PID = pid,
+                ShinyXor = (int)rare,
+                IVs = ivs,
+                Nature = nature,
+                Ability = ability,
+            };
+        }
+
+        /// <summary>由种子在 PKHeX 实体上应用 Method 1 结果（保持原有写入副作用顺序）。</summary>
+        public static bool TryApplyFromSeed(ref PKM pk, ushort tid, ushort sid, CheckRule rules, uint seed)
+        {
+            var res = Generate(seed, tid, sid, rules);
+            if (res is null)
                 return false;
 
-            // fill poke entity
-            pk.SetAbilityIndex((int)ability);
-            pk.EncryptionConstant = seed;
-            pk.PID = pid; // set PID will also change the nature or gender
-            pk.IV_HP = ivs[0];
-            pk.IV_ATK = ivs[1];
-            pk.IV_DEF = ivs[2];
-            pk.IV_SPA = ivs[3];
-            pk.IV_SPD = ivs[4];
-            pk.IV_SPE = ivs[5];
-
-            // pass the rule check
+            ApplyTo(res, pk);
             return true;
         }
 
-        private static uint GetShinyXor(uint pid, ITrainerID tr)
+        /// <summary>将结果写入 PKHeX 实体。</summary>
+        public static void ApplyTo(PkmResult res, PKM pk)
         {
-            return ((uint)(tr.TID ^ tr.SID) ^ ((pid >> 16) ^ (pid & 0xFFFF)));
+            pk.SetAbilityIndex(res.Ability);
+            pk.EncryptionConstant = res.EC;
+            pk.PID = res.PID; // set PID will also change the nature or gender
+            pk.IV_HP = res.IVs[0];
+            pk.IV_ATK = res.IVs[1];
+            pk.IV_DEF = res.IVs[2];
+            pk.IV_SPA = res.IVs[3];
+            pk.IV_SPD = res.IVs[4];
+            pk.IV_SPE = res.IVs[5];
+        }
+
+        private static uint GetShinyXor(uint pid, ushort tid, ushort sid)
+        {
+            return ((uint)(tid ^ sid) ^ ((pid >> 16) ^ (pid & 0xFFFF)));
         }
 
         private static int[] dvsToIVs(uint dvUpper, uint dvLower)
@@ -74,6 +105,7 @@ namespace PIDFinder.Lib
                 (int)(dvUpper & 0x1f),
             };
         }
+
         private static uint combineRNG(uint upper, uint lower, uint shift)
         {
             return (upper << (int)shift) + lower;

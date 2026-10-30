@@ -69,6 +69,14 @@ namespace PIDFinder.Lib
                 _ => true,
             };
         }
+
+        /// <summary>一次性判定全部条件（个体、闪光、性格、特性），供 UI/CLI 统一调用。</summary>
+        public bool CheckAll(int[] ivs, int shinyXor, int gen, int nature, int ability)
+        {
+            return CheckHP(ivs[0]) && CheckAtk(ivs[1]) && CheckDef(ivs[2])
+                && CheckSpA(ivs[3]) && CheckSpD(ivs[4]) && CheckSpe(ivs[5])
+                && CheckShiny(shinyXor, gen) && CheckNature(nature) && CheckAbility(ability);
+        }
     }
 
     public enum AbilityType : byte

@@ -1,5 +1,4 @@
 ﻿using PKHeX.Core;
-using PKHeX.Core.Searching;
 using PIDFinder.Lib;
 using System;
 using System.Collections.Generic;
@@ -21,7 +20,6 @@ namespace PKHeX_Hunter_Plugin
         private SaveFile SAV { get; }
         private IPKMView Editor { get; }
         private CancellationTokenSource tokenSource = new();
-        private List<IEncounterInfo> Results = new();
         private MethodType RNGMethod = MethodType.Method1;
 
         public Searcher(ISaveFileProvider sav, IPKMView editor)
@@ -46,49 +44,31 @@ namespace PKHeX_Hunter_Plugin
             CB_Species.InitializeBinding();
             CB_GameOrigin.InitializeBinding();
 
-            var DS_Species = new List<ComboItem>(GameInfo.SpeciesDataSource);
+            var DS_Species = new List<ComboItem>(GameInfo.Sources.SpeciesDataSource);
             DS_Species.RemoveAt(0);
             CB_Species.DataSource = DS_Species;
 
             var Any = new ComboItem(MessageStrings.MsgAny, -1);
-            var DS_Version = new List<ComboItem>(GameInfo.VersionDataSource);
+            var DS_Version = new List<ComboItem>(GameInfo.Sources.VersionDataSource);
             DS_Version.Insert(0, Any); CB_GameOrigin.DataSource = DS_Version;
 
             CB_Species.SelectedIndex = 0;
             CB_GameOrigin.SelectedIndex = 0;
         }
 
-        private SearchSettings GetSearchSettings()
-        {
-            var settings = new SearchSettings
-            {
-                Format = SAV.Generation, // 0->(n-1) => 1->n
-                Generation = SAV.Generation,
-
-                Species = WinFormsUtil.GetIndex(CB_Species),
-
-                Version = WinFormsUtil.GetIndex(CB_GameOrigin),
-
-                SearchEgg = false, // skip egg
-            };
-
-            return settings;
-        }
-
         private PKM GenEntity()
         {
-            var enc = Results[0];
-            var criteria = EncounterUtil.GetCriteria(enc, Editor.Data);
-            return enc.ConvertToPKM(SAV, criteria);
+            // PKHeX 26 起 Encounter 库搜索 API 移除，直接以当前编辑的宝可梦作为生成模板。
+            return (PKM)Editor.Data.Clone();
         }
 
         private bool CheckEntity(PKM pk, uint seed)
         {
             return RNGMethod switch
             {
-                MethodType.Method1 => PIDFinder.Lib.Method1RNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
-                MethodType.Roaming8b => PIDFinder.Lib.Roaming8bRNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
-                MethodType.Overworld8 => PIDFinder.Lib.Overworld8RNG.TryApplyFromSeed(ref pk, SAV, conditionPKM1.MyRules, seed),
+                MethodType.Method1 => PIDFinder.Lib.Method1RNG.TryApplyFromSeed(ref pk, SAV.TID16, SAV.SID16, conditionPKM1.MyRules, seed),
+                MethodType.Roaming8b => PIDFinder.Lib.Roaming8bRNG.TryApplyFromSeed(ref pk, SAV.TID16, SAV.SID16, conditionPKM1.MyRules, seed),
+                MethodType.Overworld8 => PIDFinder.Lib.Overworld8RNG.TryApplyFromSeed(ref pk, SAV.TID16, SAV.SID16, conditionPKM1.MyRules, seed),
                 _ => throw new NotSupportedException(),
             };
         }
@@ -121,22 +101,9 @@ namespace PKHeX_Hunter_Plugin
 
         private async void BTN_Encounter_Click(object sender, EventArgs e)
         {
-            var search = EncounterUtil.SearchDatabase(GetSearchSettings(), SAV);
-            var results = await Task.Run(() => search.ToList()).ConfigureAwait(true);
-            if (results.Count == 0)
-            {
-                WinFormsUtil.Alert(MessageStrings.MsgDBSearchNone);
-            }
-            else
-            {
-                WinFormsUtil.Alert("可以狩猎！");
-            }
-            Results = results;
-
-            if (Results.Count == 0)
-            {
-                WinFormsUtil.Alert(MessageStrings.MsgDBSearchNone);
-            }
+            // PKHeX 26 起 Encounter 库搜索 API 移除；直接以当前编辑数据为模板搜索种子即可。
+            await Task.CompletedTask;
+            WinFormsUtil.Alert("新版无需搜索 encounter 库，直接点击「搜索」即可。");
         }
 
         private void BTN_Search_Click(object sender, EventArgs e)
@@ -148,12 +115,6 @@ namespace PKHeX_Hunter_Plugin
             Task.Factory.StartNew(
                 () =>
                 {
-                    if (Results.Count == 0)
-                    {
-                        WinFormsUtil.Alert(MessageStrings.MsgDBSearchNone);
-                        return;
-                    }
-
                     var pk = GenEntity();
 
                     var seed = Util.Rand32();

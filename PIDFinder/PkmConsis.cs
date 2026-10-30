@@ -1,12 +1,18 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
+using PIDFinder.Lib;
 
 namespace PIDFinder
 {
     public partial class PkmConsis : UserControl
     {
         private CheckRule rules = new();
-        private ShinyType selectedShiny = ShinyType.None;
+
+        /// <summary>UI 绑定的筛选规则（供 Form1 传给 Lib）。</summary>
+        public CheckRule Rules => rules;
+
+        /// <summary>当前选中的闪光类型。</summary>
+        public ShinyType SelectedShiny { get; private set; } = ShinyType.Any;
 
         public int ShinyXor { get; set; } = 16;
         public PkmConsis()
@@ -34,36 +40,9 @@ namespace PIDFinder
             this.comboBox1.DataSource = Enum.GetNames(typeof(ShinyType));
             this.comboBox1.SelectedIndexChanged += (_, __) =>
             {
-                selectedShiny = (ShinyType)Enum.Parse(typeof(ShinyType), this.comboBox1.SelectedItem.ToString(), false);
+                SelectedShiny = (ShinyType)Enum.Parse(typeof(ShinyType), this.comboBox1.SelectedItem.ToString(), false);
             };
             this.comboBox1.SelectedIndex = 0;
-        }
-
-        public bool Check(PKM pkm)
-        {
-            // check ivs
-            if (pkm.HP < rules.minHP || pkm.HP > rules.maxHP)
-                return false;
-            if (pkm.Atk < rules.minAtk || pkm.Atk > rules.maxAtk)
-                return false;
-            if (pkm.Def < rules.minDef || pkm.Def > rules.maxDef)
-                return false;
-            if (pkm.SpA < rules.minSpA || pkm.SpA > rules.maxSpA)
-                return false;
-            if (pkm.SpD < rules.minSpD || pkm.SpD > rules.maxSpD)
-                return false;
-            if (pkm.Spe < rules.minSpe || pkm.Spe > rules.maxSpe)
-                return false;
-            // check shiny
-            var matchShiny = selectedShiny switch
-            {
-                ShinyType.Square => pkm.ShinyStatus == 0,
-                ShinyType.Star => pkm.ShinyStatus < ShinyXor && pkm.ShinyStatus!=0,
-                ShinyType.Shiny => pkm.ShinyStatus < ShinyXor,
-                _ => true,
-            };
-            if (!matchShiny) return false;
-            return true;
         }
 
         private void IVS_TextChanged(object sender, EventArgs e)
@@ -77,37 +56,6 @@ namespace PIDFinder
                 iv = 0;
                 txtbox.Text = "0";
             }
-
-            //System.Diagnostics.Debug.Print(iv.ToString());
         }
-    }
-
-    class CheckRule
-    {
-        public uint minHP { get; set; }
-        public uint maxHP { get; set; } = 31;
-        //
-        public uint minAtk { get; set; }
-        public uint maxAtk { get; set; } = 31;
-        //
-        public uint minDef { get; set; }
-        public uint maxDef { get; set; } = 31;
-        //
-        public uint minSpA { get; set; }
-        public uint maxSpA { get; set; } = 31;
-        //
-        public uint minSpD { get; set; }
-        public uint maxSpD { get; set; } = 31;
-        //
-        public uint minSpe { get; set; }
-        public uint maxSpe { get; set; } = 31;
-    }
-
-    enum ShinyType : byte
-    {
-        None,
-        Shiny,
-        Star,
-        Square,
     }
 }

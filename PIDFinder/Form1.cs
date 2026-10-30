@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using PIDFinder.Lib;
 
 namespace PIDFinder
 {
@@ -33,12 +34,14 @@ namespace PIDFinder
             checkBoxComboBox1.CheckBoxItems[0].Checked = false;
         }
 
-        private PKM GenPkm(uint seed)
+        private PkmResult? GenPkm(uint seed)
         {
+            var rules = pkmConsis1.Rules;
+            rules.Shiny = pkmConsis1.SelectedShiny;
             return RNGMethod switch
             {
-                MethodType.Method1 => Method1RNG.GenPkm(seed, trainerid1.GetSIDTID()),
-                MethodType.Roaming8b => Roaming8bRNG.GenPkm(seed, trainerid1.GetSIDTID()),
+                MethodType.Method1 => Method1RNG.Generate(seed, trainerid1.GetSIDTID().TID16, trainerid1.GetSIDTID().SID16, rules),
+                MethodType.Roaming8b => Roaming8bRNG.Generate(seed, trainerid1.GetSIDTID().TID16, trainerid1.GetSIDTID().SID16, rules),
                 _ => throw new NotSupportedException(),
             };
         }
@@ -74,25 +77,25 @@ namespace PIDFinder
             Task.Factory.StartNew(
                 () =>
                 {
-                    var seed = RandUtil.Rand32();     
+                    var seed = RandUtil.Rand32();
                     while (true)
                     {
                         if (tokenSource.IsCancellationRequested)
                             return;
 
                         var pkm = GenPkm(seed);
-                        if (pkmConsis1.Check(pkm))
+                        if (pkm is not null)
                         {
+                            var result = pkm;
                             this.Invoke(() =>
                             {
-                                ShowPkm(pkm);
+                                ShowPkm(result);
 
                                 button1.Enabled = true;
                             });
                             break;
                         }
                         seed = NextSeed(seed);
-                        //System.Diagnostics.Debug.Print($"{seed:X}");
                     }
 
                     this.Invoke(() =>
@@ -118,14 +121,19 @@ namespace PIDFinder
             button3.Enabled = !running;
         }
 
-        private void ShowPkm(PKM pkm)
+        private void ShowPkm(PkmResult pkm)
         {
             textBox1.Text = $"{pkm.PID:X8}";
             textBox2.Text = $"{pkm.EC:X8}";
-            label2.Text = $"{pkm.HP}, {pkm.Atk}, {pkm.Def}, {pkm.SpA}, {pkm.SpD}, {pkm.Spe}";
+            label2.Text = $"{pkm.IVs[0]}, {pkm.IVs[1]}, {pkm.IVs[2]}, {pkm.IVs[3]}, {pkm.IVs[4]}, {pkm.IVs[5]}";
             label3.Text = $"Ability: ({pkm.Ability + 1}), {pkm.Nature}";
-            label4.Text = $"H:{pkm.Height}, W:{pkm.Weight}";
-            label6.Text = pkm.Gen3ShinyString();
+            label4.Text = $"H:{pkm.HeightScalar}, W:{pkm.WeightScalar}";
+            label6.Text = pkm.ShinyXor switch
+            {
+                0 => "Square!",
+                < 8 => "Star!",
+                _ => "No Shiny",
+            };
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -133,6 +141,8 @@ namespace PIDFinder
             var seed = uint.Parse(textBox3.Text, System.Globalization.NumberStyles.HexNumber);
 
             var pkm = GenPkm(seed);
+            if (pkm is null)
+                return;
             ShowPkm(pkm);
         }
     }

@@ -49,7 +49,7 @@ namespace PKHeX_Hunter_Plugin
             this.SpeMin.DataBindings.Add("Text", rules, "minSpe");
             this.SpeMax.DataBindings.Add("Text", rules, "maxSpe");
 
-            CB_Natures.MaxDropDownItems = GameInfo.NatureDataSource.Count;
+            CB_Natures.MaxDropDownItems = GameInfo.Sources.NatureDataSource.Count;
             CB_Natures.Text = MessageStrings.MsgAny;
             CB_Natures.DefaultValue = MessageStrings.MsgAny;
             CB_Natures.Items.AddRange(GameInfo.Strings.natures);

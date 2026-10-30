@@ -3,13 +3,15 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <NoWarn>$(NoWarn);WFO1000</NoWarn>
+    <TargetFrameworks>net10.0-windows</TargetFrameworks>
     <LangVersion>10</LangVersion>
     <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="PKHeX.Core" Version="22.3.18" />
+    <PackageReference Include="PKHeX.Core" Version="26.10.18" />
   </ItemGroup>
 
   <ItemGroup>
