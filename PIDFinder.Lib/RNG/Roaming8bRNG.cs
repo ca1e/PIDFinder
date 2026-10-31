@@ -1,31 +1,36 @@
-﻿using PKHeX.Core;
+using PKHeX.Core;
 using System;
 
 namespace PIDFinder.Lib
 {
     public static class Roaming8bRNG
     {
-        private const int FlawlessIVs = 3;
         private const int UNSET = -1;
 
         public static uint Next(uint seed) => (uint)new Xoroshiro128Plus8b(seed).Next();
         
         /// <summary>由种子生成 BDSP 游走生成结果；不满足筛选条件时返回 null。</summary>
-        public static PkmResult Generate(uint seed, ushort tid, ushort sid, CheckRule rules)
+        public static PkmResult Generate(uint seed, ushort tid, ushort sid, CheckRule rules, int flawlessIVCount = 3)
         {
+            if (rules.Gender != -1 || rules.Natures is { Count: > 0 })
+                throw new ArgumentException("Raw Synchronize roaming has no nature or gender context. Use GenerationContext.", nameof(rules));
+            if (rules.Ability == 2)
+                throw new ArgumentException("Roaming has ordinary ability slots only.", nameof(rules));
+            if ((uint)flawlessIVCount > 6)
+                throw new ArgumentException("Flawless IV count must be in 0..6.", nameof(flawlessIVCount));
+            if (seed == 0x7FFFFFFF) return null;
             var xoro = new Xoroshiro128Plus8b(seed);
 
             // Check PID
             var fakeTID = xoro.NextUInt();
             var pid = xoro.NextUInt();
-            var opid = pid;
             pid = GetRevisedPID(fakeTID, pid, tid, sid);
-            var rare = GetShinyXor(opid, fakeTID);
+            var rare = GetShinyXor(pid, (uint)(tid | (sid << 16)));
 
             Span<int> ivs = stackalloc[] { UNSET, UNSET, UNSET, UNSET, UNSET, UNSET };
 
             var determined = 0;
-            while (determined < FlawlessIVs)
+            while (determined < flawlessIVCount)
             {
                 var idx = (int)xoro.NextUInt(6);
                 if (ivs[idx] != UNSET) continue;
@@ -70,35 +75,19 @@ namespace PIDFinder.Lib
                 PID = pid,
                 ShinyXor = (int)rare,
                 IVs = ivs.ToArray(),
-                Nature = (int)(pid % 25),
+                Nature = -1, // Synchronize branch: nature belongs to the template.
                 Ability = (int)ability,
                 HeightScalar = (byte)height,
                 WeightScalar = (byte)weight,
             };
         }
 
-        /// <summary>由种子在 PKHeX 实体上应用 BDSP 游走结果（保持原有写入副作用顺序）。</summary>
+        /// <summary>同步模式，使用模板训练家 ID 生成独立 PB8；成功替换引用。tid/sid 仅保留签名兼容。</summary>
         public static bool TryApplyFromSeed(ref PKM pk, ushort tid, ushort sid, CheckRule rules, uint seed)
         {
-            var res = Generate(seed, tid, sid, rules);
-            if (res is null)
-                return false;
-
-            pk.SetAbilityIndex(res.Ability);
-            pk.EncryptionConstant = res.EC;
-            pk.PID = res.PID;
-            pk.IV_HP = res.IVs[0];
-            pk.IV_ATK = res.IVs[1];
-            pk.IV_DEF = res.IVs[2];
-            pk.IV_SPA = res.IVs[3];
-            pk.IV_SPD = res.IVs[4];
-            pk.IV_SPE = res.IVs[5];
-            if (pk is IScaledSize s)
-            {
-                s.HeightScalar = res.HeightScalar;
-                s.WeightScalar = res.WeightScalar;
-            }
-
+            var context = new GenerationContext(pk, RngKind.Roaming8b, rules);
+            if (!context.TryGenerate(seed, out var generated)) return false;
+            pk = generated;
             return true;
         }
 

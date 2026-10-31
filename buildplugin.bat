@@ -1,13 +1,15 @@
 @echo off
+setlocal
 
-set projname="PKHeX_Hunter_Plugin"
+dotnet build "%~dp0PKHeX_Hunter_Plugin\PKHeX_Hunter_Plugin.csproj" --nologo -c Release -f net10.0-windows
+if errorlevel 1 exit /b %errorlevel%
 
-rmdir /s /q publish 
-
-cd %projname%
-rmdir /s /q bin
-rmdir /s /q obj
-
-dotnet publish %projname%.csproj --nologo -c Release -r win-x64 -f net6.0-windows --no-self-contained -o ..\publish
-
-pause
+set "pluginout=%~dp0publish\plugins\PIDFinder"
+if not exist "%pluginout%" mkdir "%pluginout%"
+copy /y "%~dp0PKHeX_Hunter_Plugin\bin\Release\net10.0-windows\PKHeX_Hunter_Plugin.dll" "%pluginout%\" >nul
+if errorlevel 1 exit /b %errorlevel%
+copy /y "%~dp0PKHeX_Hunter_Plugin\bin\Release\net10.0-windows\PIDFinder.Lib.dll" "%pluginout%\" >nul
+if errorlevel 1 exit /b %errorlevel%
+echo Plugin ready: "%pluginout%"
+echo Copy the PIDFinder folder into the plugins folder beside PKHeX.exe.
+exit /b 0

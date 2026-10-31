@@ -11,6 +11,8 @@ namespace PIDFinder.Lib
         /// <summary>由种子生成 Gen3 Method 1 结果；不满足筛选条件时返回 null。</summary>
         public static PkmResult Generate(uint seed, ushort tid, ushort sid, CheckRule rules)
         {
+            if (rules.Gender != -1)
+                throw new System.ArgumentException("Raw Method1 has no species gender context. Use GenerationContext.", nameof(rules));
             var pidLower = LCRNG.Next(seed) >> shift;
             var pidUpper = LCRNG.Advance(seed, 2) >> shift;
             var dvLower = LCRNG.Advance(seed, 3) >> shift;
@@ -54,7 +56,7 @@ namespace PIDFinder.Lib
             return new PkmResult
             {
                 Seed = seed,
-                EC = seed,
+                EC = pid,
                 PID = pid,
                 ShinyXor = (int)rare,
                 IVs = ivs,
@@ -63,23 +65,21 @@ namespace PIDFinder.Lib
             };
         }
 
-        /// <summary>由种子在 PKHeX 实体上应用 Method 1 结果（保持原有写入副作用顺序）。</summary>
+        /// <summary>使用模板训练家 ID 生成独立 PK3；成功替换引用。tid/sid 仅保留签名兼容。</summary>
         public static bool TryApplyFromSeed(ref PKM pk, ushort tid, ushort sid, CheckRule rules, uint seed)
         {
-            var res = Generate(seed, tid, sid, rules);
-            if (res is null)
-                return false;
-
-            ApplyTo(res, pk);
+            var context = new GenerationContext(pk, RngKind.Method1, rules);
+            if (!context.TryGenerate(seed, out var generated)) return false;
+            pk = generated;
             return true;
         }
 
         /// <summary>将结果写入 PKHeX 实体。</summary>
         public static void ApplyTo(PkmResult res, PKM pk)
         {
-            pk.SetAbilityIndex(res.Ability);
-            pk.EncryptionConstant = res.EC;
-            pk.PID = res.PID; // set PID will also change the nature or gender
+            if (pk is not PK3) throw new System.ArgumentException("Method1 requires a native PK3.", nameof(pk));
+            pk.PID = res.PID; // PK3 nature and gender are derived getters; EC is also PID.
+            pk.RefreshAbility((int)(pk.PID & 1));
             pk.IV_HP = res.IVs[0];
             pk.IV_ATK = res.IVs[1];
             pk.IV_DEF = res.IVs[2];

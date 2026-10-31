@@ -1,8 +1,7 @@
-﻿using PKHeX.Core;
+using PKHeX.Core;
 using PIDFinder.Lib;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -11,153 +10,177 @@ namespace PKHeX_Hunter_Plugin
 {
     public partial class Searcher : Form
     {
-        enum MethodType
-        {
-            Method1,
-            Roaming8b,
-            Overworld8,
-        }
-        private SaveFile SAV { get; }
         private IPKMView Editor { get; }
-        private CancellationTokenSource tokenSource = new();
-        private MethodType RNGMethod = MethodType.Method1;
+        private CancellationTokenSource activeCancellation;
+        private Task activeTask;
+        private bool closeRequested;
 
         public Searcher(ISaveFileProvider sav, IPKMView editor)
         {
-            SAV = sav.SAV;
-            Editor = editor;
-
+            Editor = editor ?? throw new ArgumentNullException(nameof(editor));
             InitializeComponent();
-        
-            BindingData();
+            CB_Method.DataSource = Enum.GetNames(typeof(RngKind));
+            RefreshTemplateDisplay();
+            FormClosing += Searcher_FormClosing;
         }
 
-        private void BindingData()
+        private void RefreshTemplateDisplay()
         {
-            this.CB_Method.DataSource = Enum.GetNames(typeof(MethodType));
-            this.CB_Method.SelectedIndexChanged += (_, __) =>
-            {
-                RNGMethod = (MethodType)Enum.Parse(typeof(MethodType), this.CB_Method.SelectedItem.ToString(), false);
-            };
-            this.CB_Method.SelectedIndex = 0;
-
-            CB_Species.InitializeBinding();
-            CB_GameOrigin.InitializeBinding();
-
-            var DS_Species = new List<ComboItem>(GameInfo.Sources.SpeciesDataSource);
-            DS_Species.RemoveAt(0);
-            CB_Species.DataSource = DS_Species;
-
-            var Any = new ComboItem(MessageStrings.MsgAny, -1);
-            var DS_Version = new List<ComboItem>(GameInfo.Sources.VersionDataSource);
-            DS_Version.Insert(0, Any); CB_GameOrigin.DataSource = DS_Version;
-
-            CB_Species.SelectedIndex = 0;
-            CB_GameOrigin.SelectedIndex = 0;
+            var pk = Editor.Data;
+            TB_Species.Text = $"{pk.Species} / {pk.GetType().Name}";
+            TB_Version.Text = pk.Version.ToString();
         }
 
-        private PKM GenEntity()
+        private GenerationContext CaptureContext()
         {
-            // PKHeX 26 起 Encounter 库搜索 API 移除，直接以当前编辑的宝可梦作为生成模板。
-            return (PKM)Editor.Data.Clone();
+            RefreshTemplateDisplay();
+            var template = (PKM)Editor.Data.Clone();
+            var kind = Enum.Parse<RngKind>((string)CB_Method.SelectedItem);
+            return new GenerationContext(template, kind, conditionPKM1.ReadRulesSnapshot(), (int)NUD_Flawless.Value);
         }
 
-        private bool CheckEntity(PKM pk, uint seed)
+        private uint ReadSeed()
         {
-            return RNGMethod switch
-            {
-                MethodType.Method1 => PIDFinder.Lib.Method1RNG.TryApplyFromSeed(ref pk, SAV.TID16, SAV.SID16, conditionPKM1.MyRules, seed),
-                MethodType.Roaming8b => PIDFinder.Lib.Roaming8bRNG.TryApplyFromSeed(ref pk, SAV.TID16, SAV.SID16, conditionPKM1.MyRules, seed),
-                MethodType.Overworld8 => PIDFinder.Lib.Overworld8RNG.TryApplyFromSeed(ref pk, SAV.TID16, SAV.SID16, conditionPKM1.MyRules, seed),
-                _ => throw new NotSupportedException(),
-            };
-        }
-
-        private uint NextSeed(uint seed)
-        {
-            return RNGMethod switch
-            {
-                MethodType.Method1 => PIDFinder.Lib.Method1RNG.Next(seed),
-                MethodType.Roaming8b => PIDFinder.Lib.Roaming8bRNG.Next(seed),
-                MethodType.Overworld8 => PIDFinder.Lib.Overworld8RNG.Next(seed),
-                _ => throw new NotSupportedException(),
-            };
+            if (!uint.TryParse(seedBox.Text, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var seed))
+                throw new ArgumentException("种子必须为 1 至 8 位十六进制数字。");
+            return seed;
         }
 
         private void ShowEntity(PKM pk)
         {
             pk.RefreshChecksum();
-
             Editor.PopulateFields(pk, false);
         }
 
-        private void IsRunning(bool running)
+        private void SetRunning(bool running)
         {
             BTN_Search.Enabled = !running;
-            conditionPKM1.Enabled = !running;
-            cancelBTN.Visible = running;
             checkBTN.Enabled = !running;
+            CB_Method.Enabled = !running;
+            conditionPKM1.Enabled = !running;
+            seedBox.Enabled = !running;
+            NUD_Flawless.Enabled = !running;
+            NUD_Budget.Enabled = !running;
+            cancelBTN.Visible = running;
+            cancelBTN.Enabled = running;
         }
 
-        private async void BTN_Encounter_Click(object sender, EventArgs e)
+        private async void BTN_Search_Click(object sender, EventArgs e)
         {
-            // PKHeX 26 起 Encounter 库搜索 API 移除；直接以当前编辑数据为模板搜索种子即可。
-            await Task.CompletedTask;
-            WinFormsUtil.Alert("新版无需搜索 encounter 库，直接点击「搜索」即可。");
-        }
-
-        private void BTN_Search_Click(object sender, EventArgs e)
-        {
-            IsRunning(true);
-            seedBox.Text = "searching...";
-
-            tokenSource = new();
-            Task.Factory.StartNew(
-                () =>
-                {
-                    var pk = GenEntity();
-
-                    var seed = Util.Rand32();
-                    while (true)
-                    {
-                        if (tokenSource.IsCancellationRequested)
-                            return;
-
-                        if (CheckEntity(pk, seed))
-                        {
-                            this.Invoke(() =>
-                            {
-                                ShowEntity(pk);
-                            });
-                            break;
-                        }
-                        seed = NextSeed(seed);
-                    }
-
-                    this.Invoke(() =>
-                    {
-                        IsRunning(false);
-                        seedBox.Text = $"{seed:X}";
-                    });
-                },
-                tokenSource.Token);
-        }
-
-        private void cancelBTN_Click(object sender, System.EventArgs e)
-        {
-            tokenSource.Cancel();
-            IsRunning(false);
-        }
-
-        private void checkBTN_Click(object sender, System.EventArgs e)
-        {
-            var result = uint.TryParse(seedBox.Text, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out var seed);
-            if(result)
+            if (activeTask != null || closeRequested) return;
+            GenerationContext context;
+            uint start;
+            uint count;
+            try
             {
-                var pk = GenEntity();
-                CheckEntity(pk, seed);
-                ShowEntity(pk);
+                context = CaptureContext();
+                start = ReadSeed();
+                count = (uint)NUD_Budget.Value;
             }
+            catch (Exception ex)
+            {
+                L_Status.Text = ex.Message;
+                return;
+            }
+
+            // Each run owns its cancellation source. Nothing in the worker reads controls.
+            using var cancellation = new CancellationTokenSource();
+            activeCancellation = cancellation;
+            SetRunning(true);
+            L_Status.Text = $"搜索中：最多 {count:N0} 个种子（算法步进）…";
+            activeTask = RunSearchAsync(context, start, count, cancellation.Token);
+            try { await activeTask; }
+            finally
+            {
+                activeTask = null;
+                activeCancellation = null;
+                if (!IsDisposed)
+                {
+                    SetRunning(false);
+                    if (closeRequested) Close();
+                }
+            }
+        }
+
+        private async Task RunSearchAsync(GenerationContext context, uint start, uint count, CancellationToken token)
+        {
+            try
+            {
+                var found = await Task.Run(() => Search(context, start, count, token), token);
+                token.ThrowIfCancellationRequested();
+                if (closeRequested || IsDisposed) return;
+                if (found.Entity == null)
+                    L_Status.Text = $"已检查 {count:N0} 个种子，未找到匹配。";
+                else
+                {
+                    ShowEntity(found.Entity);
+                    seedBox.Text = $"{found.Seed:X8}";
+                    L_Status.Text = "已应用匹配结果；请在 PKHeX 中核对遭遇合法性。";
+                }
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested)
+            {
+                if (!IsDisposed) L_Status.Text = "搜索已取消。";
+            }
+            catch (Exception ex)
+            {
+                if (!IsDisposed) L_Status.Text = $"搜索失败：{ex.Message}";
+            }
+        }
+
+        private static (uint Seed, PKM Entity) Search(GenerationContext context, uint start, uint count, CancellationToken token)
+        {
+            var seed = start;
+            for (uint i = 0; i < count; i++)
+            {
+                token.ThrowIfCancellationRequested();
+                if (context.TryGenerate(seed, out var pk)) return (seed, pk);
+                seed = context.Kind switch
+                {
+                    RngKind.Method1 => PIDFinder.Lib.Method1RNG.Next(seed),
+                    RngKind.Overworld8 => PIDFinder.Lib.Overworld8RNG.Next(seed),
+                    RngKind.Roaming8b => PIDFinder.Lib.Roaming8bRNG.Next(seed),
+                    _ => throw new NotSupportedException(),
+                };
+                if (seed == start) break;
+            }
+            return (seed, null);
+        }
+
+        private void RequestCancellation()
+        {
+            if (activeTask == null) return;
+            cancelBTN.Enabled = false;
+            L_Status.Text = "正在取消…";
+            activeCancellation.Cancel();
+        }
+
+        private void cancelBTN_Click(object sender, EventArgs e) => RequestCancellation();
+
+        private void Searcher_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (activeTask == null) return;
+            e.Cancel = true;
+            closeRequested = true;
+            RequestCancellation();
+        }
+
+        private void checkBTN_Click(object sender, EventArgs e)
+        {
+            if (activeTask != null || closeRequested) return;
+            try
+            {
+                var context = CaptureContext();
+                var seed = ReadSeed();
+                if (!context.TryGenerate(seed, out var pk))
+                {
+                    L_Status.Text = "该种子不符合当前条件，编辑器保持原样。";
+                    return;
+                }
+                ShowEntity(pk);
+                L_Status.Text = "已应用匹配结果；请在 PKHeX 中核对遭遇合法性。";
+            }
+            catch (Exception ex) { L_Status.Text = ex.Message; }
         }
     }
 }

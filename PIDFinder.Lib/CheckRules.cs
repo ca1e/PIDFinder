@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace PIDFinder.Lib
@@ -28,10 +29,8 @@ namespace PIDFinder.Lib
         public uint maxSpe { get; set; } = 31;
         public bool CheckSpe(int Spe) => (Spe >= minSpe && Spe <= maxSpe);
         
-        /// <summary>
-        /// TODO 1/2,not hidden
-        /// </summary>
-        public int Ability { get; set; }
+        /// <summary>Any=-1, ordinary slots=0/1, hidden slot=2.</summary>
+        public int Ability { get; set; } = -1;
         public bool CheckAbility(int ability)
         {
             if (Ability == -1) return true;
@@ -48,10 +47,10 @@ namespace PIDFinder.Lib
             return false;
         }
 
-        public int Gender { get; set; }
+        public int Gender { get; set; } = -1;
         public bool CheckGender(int gender)
         {
-            if (Ability == -1) return true;
+            if (Gender == -1) return true;
             if(gender == Gender) return true;
             return false;
         }
@@ -59,7 +58,7 @@ namespace PIDFinder.Lib
         public ShinyType Shiny = ShinyType.Any;
         public bool CheckShiny(int shinyxor, int gen = 7)
         {
-            var xornum = (gen >= 7 ? 16 : 8);
+            var xornum = (gen >= 6 ? 16 : 8);
             return Shiny switch
             {
                 ShinyType.Square => shinyxor == 0,
@@ -70,7 +69,39 @@ namespace PIDFinder.Lib
             };
         }
 
-        /// <summary>一次性判定全部条件（个体、闪光、性格、特性），供 UI/CLI 统一调用。</summary>
+        /// <summary>验证输入并创建独立快照；调用方可以私有持有快照而继续保留可变规则 API。</summary>
+        public CheckRule Snapshot()
+        {
+            ValidateRange(minHP, maxHP, nameof(minHP));
+            ValidateRange(minAtk, maxAtk, nameof(minAtk));
+            ValidateRange(minDef, maxDef, nameof(minDef));
+            ValidateRange(minSpA, maxSpA, nameof(minSpA));
+            ValidateRange(minSpD, maxSpD, nameof(minSpD));
+            ValidateRange(minSpe, maxSpe, nameof(minSpe));
+            if (Ability < -1 || Ability > 2)
+                throw new ArgumentException("Ability must be -1, 0, 1 or 2.", nameof(Ability));
+            if (Gender < -1 || Gender > 2)
+                throw new ArgumentException("Gender must be -1, 0, 1 or 2.", nameof(Gender));
+            if (!Enum.IsDefined(Shiny))
+                throw new ArgumentException("Unknown shiny rule.", nameof(Shiny));
+            var copy = (CheckRule)MemberwiseClone();
+            copy.Natures = Natures == null ? null : new List<int>(Natures);
+            if (copy.Natures != null && copy.Natures.Exists(n => n < 0 || n >= 25))
+                throw new ArgumentException("Natures must be in 0..24.", nameof(Natures));
+            return copy;
+        }
+
+        private static void ValidateRange(uint min, uint max, string name)
+        {
+            if (min > 31 || max > 31 || min > max)
+                throw new ArgumentException("IV bounds must be in 0..31 with min <= max.", name);
+        }
+
+        /// <summary>检查包含性别的完整实体属性。</summary>
+        public bool CheckAll(int[] ivs, int shinyXor, int gen, int nature, int ability, int gender)
+            => CheckAll(ivs, shinyXor, gen, nature, ability) && CheckGender(gender);
+
+        /// <summary>检查无性别上下文的原始算法结果；有实体时使用包含 gender 的重载。</summary>
         public bool CheckAll(int[] ivs, int shinyXor, int gen, int nature, int ability)
         {
             return CheckHP(ivs[0]) && CheckAtk(ivs[1]) && CheckDef(ivs[2])
@@ -92,6 +123,7 @@ namespace PIDFinder.Lib
         Any,
         Male,
         Female,
+        Genderless,
     }
 
     public enum ShinyType : byte

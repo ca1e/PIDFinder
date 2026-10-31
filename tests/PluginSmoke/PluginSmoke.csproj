@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Version>26.10.18</Version>
+    <PKHeXDirectory Condition="'$(PKHeXDirectory)' == ''">D:/github/kwsch_PKHeX/PKHeX.WinForms/bin/Release/net10.0-windows/win-x64</PKHeXDirectory>
+  </PropertyGroup>
+  <!-- Reference the real host, never the plugin project: PluginLoader owns its assembly identity. -->
+  <ItemGroup>
+    <Reference Include="PKHeX"><HintPath>$(PKHeXDirectory)/PKHeX.dll</HintPath></Reference>
+    <Reference Include="PKHeX.Core"><HintPath>$(PKHeXDirectory)/PKHeX.Core.dll</HintPath></Reference>
+    <Reference Include="PKHeX.Drawing"><HintPath>$(PKHeXDirectory)/PKHeX.Drawing.dll</HintPath></Reference>
+    <Reference Include="PKHeX.Drawing.Misc"><HintPath>$(PKHeXDirectory)/PKHeX.Drawing.Misc.dll</HintPath></Reference>
+    <Reference Include="PKHeX.Drawing.PokeSprite"><HintPath>$(PKHeXDirectory)/PKHeX.Drawing.PokeSprite.dll</HintPath></Reference>
+  </ItemGroup>
+  <Target Name="CheckActualHost" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(PKHeXDirectory)/PKHeX.dll')" Text="Actual PKHeX host not found. Set -p:PKHeXDirectory=... to its output directory." />
+  </Target>
+</Project>

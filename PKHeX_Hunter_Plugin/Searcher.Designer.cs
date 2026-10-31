@@ -1,192 +1,73 @@
-﻿namespace PKHeX_Hunter_Plugin
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace PKHeX_Hunter_Plugin
 {
     partial class Searcher
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                activeCancellation?.Cancel();
+                components?.Dispose();
             }
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
-            this.BTN_Search = new System.Windows.Forms.Button();
-            this.seedBox = new System.Windows.Forms.TextBox();
-            this.checkBTN = new System.Windows.Forms.Button();
-            this.cancelBTN = new System.Windows.Forms.Button();
-            this.CB_Method = new System.Windows.Forms.ComboBox();
-            this.CB_Species = new System.Windows.Forms.ComboBox();
-            this.CB_GameOrigin = new System.Windows.Forms.ComboBox();
-            this.conditionPKM1 = new PKHeX_Hunter_Plugin.ConditionPKM();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.BTN_Encounter = new System.Windows.Forms.Button();
-            this.SuspendLayout();
-            // 
-            // BTN_Search
-            // 
-            this.BTN_Search.Location = new System.Drawing.Point(355, 184);
-            this.BTN_Search.Name = "BTN_Search";
-            this.BTN_Search.Size = new System.Drawing.Size(117, 38);
-            this.BTN_Search.TabIndex = 0;
-            this.BTN_Search.Text = "狩猎开始！";
-            this.BTN_Search.UseVisualStyleBackColor = true;
-            this.BTN_Search.Click += new System.EventHandler(this.BTN_Search_Click);
-            // 
-            // seedBox
-            // 
-            this.seedBox.Location = new System.Drawing.Point(18, 211);
-            this.seedBox.MaxLength = 64;
-            this.seedBox.Name = "seedBox";
-            this.seedBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.seedBox.Size = new System.Drawing.Size(175, 21);
-            this.seedBox.TabIndex = 1;
-            this.seedBox.Text = "00000000";
-            // 
-            // checkBTN
-            // 
-            this.checkBTN.Location = new System.Drawing.Point(199, 209);
-            this.checkBTN.Name = "checkBTN";
-            this.checkBTN.Size = new System.Drawing.Size(69, 23);
-            this.checkBTN.TabIndex = 3;
-            this.checkBTN.Text = "Lookup";
-            this.checkBTN.UseVisualStyleBackColor = true;
-            this.checkBTN.Click += new System.EventHandler(this.checkBTN_Click);
-            // 
-            // cancelBTN
-            // 
-            this.cancelBTN.Location = new System.Drawing.Point(478, 184);
-            this.cancelBTN.Name = "cancelBTN";
-            this.cancelBTN.Size = new System.Drawing.Size(52, 38);
-            this.cancelBTN.TabIndex = 4;
-            this.cancelBTN.Text = "Cancel";
-            this.cancelBTN.UseVisualStyleBackColor = true;
-            this.cancelBTN.Visible = false;
-            this.cancelBTN.Click += new System.EventHandler(this.cancelBTN_Click);
-            // 
-            // CB_Method
-            // 
-            this.CB_Method.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.CB_Method.FormattingEnabled = true;
-            this.CB_Method.Location = new System.Drawing.Point(66, 79);
-            this.CB_Method.Name = "CB_Method";
-            this.CB_Method.Size = new System.Drawing.Size(127, 20);
-            this.CB_Method.TabIndex = 5;
-            // 
-            // CB_Species
-            // 
-            this.CB_Species.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-            this.CB_Species.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
-            this.CB_Species.FormattingEnabled = true;
-            this.CB_Species.Location = new System.Drawing.Point(66, 17);
-            this.CB_Species.Margin = new System.Windows.Forms.Padding(0);
-            this.CB_Species.Name = "CB_Species";
-            this.CB_Species.Size = new System.Drawing.Size(127, 20);
-            this.CB_Species.TabIndex = 6;
-            // 
-            // CB_GameOrigin
-            // 
-            this.CB_GameOrigin.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.CB_GameOrigin.FormattingEnabled = true;
-            this.CB_GameOrigin.Location = new System.Drawing.Point(66, 46);
-            this.CB_GameOrigin.Margin = new System.Windows.Forms.Padding(0);
-            this.CB_GameOrigin.Name = "CB_GameOrigin";
-            this.CB_GameOrigin.Size = new System.Drawing.Size(127, 20);
-            this.CB_GameOrigin.TabIndex = 7;
-            // 
-            // conditionPKM1
-            // 
-            this.conditionPKM1.Location = new System.Drawing.Point(220, 21);
-            this.conditionPKM1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.conditionPKM1.Name = "conditionPKM1";
-            this.conditionPKM1.Size = new System.Drawing.Size(316, 161);
-            this.conditionPKM1.TabIndex = 2;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(16, 20);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(47, 12);
-            this.label1.TabIndex = 8;
-            this.label1.Text = "Species";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(16, 49);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(47, 12);
-            this.label2.TabIndex = 9;
-            this.label2.Text = "Version";
-            // 
-            // BTN_Encounter
-            // 
-            this.BTN_Encounter.Location = new System.Drawing.Point(66, 144);
-            this.BTN_Encounter.Name = "BTN_Encounter";
-            this.BTN_Encounter.Size = new System.Drawing.Size(127, 38);
-            this.BTN_Encounter.TabIndex = 10;
-            this.BTN_Encounter.Text = "寻找猎物";
-            this.BTN_Encounter.UseVisualStyleBackColor = true;
-            this.BTN_Encounter.Click += new System.EventHandler(this.BTN_Encounter_Click);
-            // 
-            // Searcher
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(542, 244);
-            this.Controls.Add(this.BTN_Encounter);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.cancelBTN);
-            this.Controls.Add(this.checkBTN);
-            this.Controls.Add(this.conditionPKM1);
-            this.Controls.Add(this.seedBox);
-            this.Controls.Add(this.BTN_Search);
-            this.Controls.Add(this.CB_Species);
-            this.Controls.Add(this.CB_GameOrigin);
-            this.Controls.Add(this.CB_Method);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "Searcher";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "猎游者";
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            SuspendLayout();
+            TB_Species = new TextBox { Name = "TB_Species", ReadOnly = true, Location = new Point(77, 17), Size = new Size(132, 21) };
+            TB_Version = new TextBox { Name = "TB_Version", ReadOnly = true, Location = new Point(77, 47), Size = new Size(132, 21) };
+            CB_Method = new ComboBox { Name = "CB_Method", DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(77, 77), Size = new Size(132, 21) };
+            NUD_Flawless = new NumericUpDown { Name = "NUD_Flawless", Minimum = 0, Maximum = 6, Value = 3, Location = new Point(125, 109), Size = new Size(84, 21) };
+            NUD_Budget = new NumericUpDown { Name = "NUD_Budget", Minimum = 1, Maximum = 100000000, Value = 1000000, ThousandsSeparator = true, Location = new Point(77, 141), Size = new Size(132, 21) };
+            conditionPKM1 = new ConditionPKM { Name = "conditionPKM1", Location = new Point(225, 17), Size = new Size(316, 161) };
+            seedBox = new TextBox { Name = "seedBox", MaxLength = 8, Text = "00000000", Location = new Point(77, 194), Size = new Size(132, 21) };
+            checkBTN = new Button { Name = "checkBTN", Text = "Lookup", Location = new Point(225, 192), Size = new Size(75, 26) };
+            BTN_Search = new Button { Name = "BTN_Search", Text = "开始搜索", Location = new Point(350, 192), Size = new Size(100, 26) };
+            cancelBTN = new Button { Name = "cancelBTN", Text = "取消", Visible = false, Location = new Point(460, 192), Size = new Size(75, 26) };
+            L_Status = new Label { Name = "L_Status", Text = "就绪：使用 PKHeX 当前编辑模板。", Location = new Point(16, 230), Size = new Size(525, 42) };
+            var help = new Label { Text = "种子关联模式；保证V数由遭遇决定，Method1 忽略此项。\nBDSP 使用同步分支并保留模板性格。结果仍需核对遭遇合法性。", Location = new Point(16, 275), Size = new Size(525, 35) };
+            Controls.AddRange(new Control[]
+            {
+                new Label { Text = "模板种类", AutoSize = true, Location = new Point(16, 20) },
+                new Label { Text = "来源版本", AutoSize = true, Location = new Point(16, 50) },
+                new Label { Text = "算法", AutoSize = true, Location = new Point(16, 80) },
+                new Label { Text = "保证V数（Gen8）", AutoSize = true, Location = new Point(16, 112) },
+                new Label { Text = "扫描上限", AutoSize = true, Location = new Point(16, 144) },
+                new Label { Text = "种子HEX", AutoSize = true, Location = new Point(16, 197) },
+                TB_Species, TB_Version, CB_Method, NUD_Flawless, NUD_Budget, conditionPKM1,
+                seedBox, checkBTN, BTN_Search, cancelBTN, L_Status, help,
+            });
+            BTN_Search.Click += BTN_Search_Click;
+            checkBTN.Click += checkBTN_Click;
+            cancelBTN.Click += cancelBTN_Click;
+            AutoScaleDimensions = new SizeF(6F, 12F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(555, 322);
+            FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "Searcher";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "猎游者";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
-        #endregion
-
-        private System.Windows.Forms.Button BTN_Search;
-        private System.Windows.Forms.TextBox seedBox;
+        private Button BTN_Search;
+        private TextBox seedBox;
         private ConditionPKM conditionPKM1;
-        private System.Windows.Forms.Button checkBTN;
-        private System.Windows.Forms.Button cancelBTN;
-        private System.Windows.Forms.ComboBox CB_Species;
-        private System.Windows.Forms.ComboBox CB_Method;
-        private System.Windows.Forms.ComboBox CB_GameOrigin;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button BTN_Encounter;
+        private Button checkBTN;
+        private Button cancelBTN;
+        private TextBox TB_Species;
+        private ComboBox CB_Method;
+        private TextBox TB_Version;
+        private NumericUpDown NUD_Flawless;
+        private NumericUpDown NUD_Budget;
+        private Label L_Status;
     }
 }

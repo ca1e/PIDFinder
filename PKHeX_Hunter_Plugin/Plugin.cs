@@ -1,11 +1,11 @@
-﻿using PKHeX.Core;
+using PKHeX.Core;
 using System;
 using System.Windows.Forms;
 using System.Diagnostics;
 
 namespace PKHeX_Hunter_Plugin
 {
-    internal class Plugin : IPlugin
+    public class Plugin : IPlugin
     {
         private const string ParentMenuParent = "Menu_Tools";
 
@@ -16,7 +16,8 @@ namespace PKHeX_Hunter_Plugin
         public ISaveFileProvider SaveFileEditor { get; private set; } = null!;
         protected IPKMView PKMEditor { get; private set; } = null!;
 
-        private ToolStripMenuItem? Hunter;
+        private ToolStripMenuItem Hunter;
+        private Searcher searcher;
 
         public void Initialize(params object[] args)
         {
@@ -42,12 +43,13 @@ namespace PKHeX_Hunter_Plugin
 
         private void Open()
         {
-            var sav = SaveFileEditor.SAV;
-            var game = sav.Version;
-            //if (!GameVersion.BDSP.Contains(game) && !GameVersion.Gen7.Contains(game))
-            //    return;
-            var frm = new Searcher(SaveFileEditor, PKMEditor);
-            frm.Show();
+            if (searcher != null && !searcher.IsDisposed)
+            {
+                searcher.Activate();
+                return;
+            }
+            searcher = new Searcher(SaveFileEditor, PKMEditor);
+            searcher.Show();
         }
 
         public void NotifySaveLoaded()
